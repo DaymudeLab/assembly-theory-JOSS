@@ -16,11 +16,11 @@ authors:
     equal-contrib: true
     affiliation: "1, 2"
   - name: Olivia Smith
-    orcid: 
+    orcid: 0009-0004-2299-3522
     equal-contrib: true
     affiliation: "1, 3"
   - name: Devansh Vimal
-    orcid: 
+    orcid: 0009-0006-2794-8995
     equal-contrib: true
     affiliation: 1
   - name: Joshua J. Daymude
@@ -29,6 +29,7 @@ authors:
     affiliation: "1, 2"
   - name: Cole Mathis
     orcid: 0000-0001-8424-9169
+    corresponding: true
     equal-contrib: true
     affiliation: "1, 3"
 affiliations:
