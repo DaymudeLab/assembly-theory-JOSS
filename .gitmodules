@@ -1,0 +1,3 @@
+[submodule "ORCA"]
+	path = ORCA
+	url = git@github.com:DaymudeLab/ORCA.git
