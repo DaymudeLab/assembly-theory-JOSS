@@ -1,7 +1,10 @@
 ---
 title: 'ORCA: Open, Reproducible Calculation of Assembly Indices'
 tags:
-  - TODO
+  - assembly theory
+  - biochemistry
+  - astrobiology
+  - Rust
 authors:
   - name: Sean Bergen
     orcid: 0009-0004-3570-5120
@@ -45,7 +48,9 @@ bibliography: ref.bib
 
 # Summary
 
-TODO: Abstract.
+We present `ORCA` ([O]{.ul}pen, [R]{.ul}eproducible [C]{.ul}omputation of [A]{.ul}ssembly Indices), a Rust package for computing *assembly indices* and *minimum assembly pathways* of biochemical structures.
+These are key complexity measures of *assembly theory*, a recent theoretical framework characterizing how selection occurs across diverse systems, most importantly chemistry `[@Walker2024-experimentallymeasured; @Sharma2023-assemblytheory]`.
+`ORCA` is designed for researchers and practitioners alike, providing (*i*) extensible, high-performance implementations of assembly index calculation algorithms, (*ii*) comprehensive benchmarks against which current and future algorithmic improvements can be tested, and (*iii*) Python bindings and `RDKit`-compatible data loaders to support integration with existing computational pipelines.
 
 
 
