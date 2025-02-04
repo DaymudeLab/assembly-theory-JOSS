@@ -56,7 +56,22 @@ These are key complexity measures of *assembly theory*, a recent theoretical fra
 
 # Statement of Need
 
-TODO: Why is the software necessary?
+*Assembly theory* (AT) is a recently developed body of theoretical and empirical work focused on characterizing selection in chemical systems `[@Sharma2023-assemblytheory; @Walker2024-experimentallymeasured]`.
+Among AT's key measures of structural complexity, the *(molecular) assembly index* (MA) quantifies the length of the shortest *assembly pathway* for a given structure, i.e., the minimum number of recursive subcontructions required to construct a target structure starting from a given set of building blocks (e.g., bonds for molecules) `[@Jirasek2024-investigatingquantifying; @Seet2024-rapidcomputation]`; see Figure \autoref{fig:assemblyindex} for an example.
+It has previously been shown that MA can be measured for covalently-bonded molecules using standard analytical techniques such as tandem mass spectrometry as well as infrared and nuclear magnetic resonance spectroscopy `[@Jirasek2024-investigatingquantifying]`, enabling a novel approach to life detection based on AT `[@Marshall2021-identifyingmolecules]`.
+Beyond life detection, AT and MA have been proposed in methods to generate novel therapeutic drugs, identify environmental pollutants, and gain new insights into phylogenomics by inferring evolutionary relationships directly from metabolomic data `[@Liu2021-exploringmapping; @Kahana2024-constructingmolecular]`.
+
+![*Assembly Pathways for Anthracene*. Starting with bonds as building blocks (yellow), a joining operation yields progressively larger structures by combining any two compatible structures that have already been constructed (arrows). These intermediate structures must obey valence rules but otherwise do not have to be physically accessible or chemically synthesizable. There may be many assembly pathways from building blocks to a target structure&mdash;in this case, Anthracene (green)&mdash;but the length of any shortest such pathway (blue) is that structure's assembly index.\label{fig:assemblyindex}](figures/anthracene.pdf){ width=80% }
+
+Despite these promising applications, computing MA efficiently remains a challenge.
+In general, exact MA calculation is an NP-hard problem `[@Kempes2024-assemblytheory]`; i.e., the necessary computing resources are likely to grow exponentially with the target structure's size.
+Previous software to compute assembly indices have been closed-source, platform-dependent, or written in languages rarely used by the broader scientific community.
+For example, the original software to compute a split-branch approximation of MA (an upper bound on the exact value) was written in C++ and depended on the MSVC compiler, making it difficult to deploy to non-Windows machines `[@Marshall2021-identifyingmolecules]`.
+The more recent `AssemblyGo` implementation computes MA exactly but is written in Go, yielding worse performance than alternatives and posing an accessibility barrier for most scientific practitioners who are unfamiliar with the language `[@Jirasek2024-investigatingquantifying]`.
+Finally, the latest `AssemblyCPP` implementation is again written in C++ but is closed-source, prohibiting its use and verification by the community `[@Seet2024-rapidcomputation]`.
+
+With `ORCA`, we provide a high-performance, cross-platform Rust package for fast MA calculation while also providing Python bindings for key functionality, offering the best efficiency without sacrificing accessibility.
+By including test and benchmark suites, we additionally lay the foundation for fair, reproducible comparisons of future algorithmic improvements and new techniques.
 
 
 
