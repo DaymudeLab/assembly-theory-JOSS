@@ -99,8 +99,8 @@ Figure sizes can be customized by adding an optional second parameter:
 
 # Acknowledgements
 
-TODO: Fill these in, if we have any.
-
+J.J.D. and G.P. are supported in part by NSF award CCF-2312537.
+**TODO**: Other acks?
 
 
 # References
