@@ -54,7 +54,7 @@ These are key complexity measures of *assembly theory*, a recent theoretical fra
 
 
 
-# Statement of Need
+# Background
 
 *Assembly theory* (AT) is a recently developed body of theoretical and empirical work focused on characterizing selection in chemical systems `[@Sharma2023-assemblytheory; @Walker2024-experimentallymeasured]`.
 Among AT's key measures of structural complexity, the *(molecular) assembly index* (MA) quantifies the length of the shortest *assembly pathway* for a given structure, i.e., the minimum number of recursive subcontructions required to construct a target structure starting from a given set of building blocks (e.g., bonds for molecules) `[@Jirasek2024-investigatingquantifying; @Seet2024-rapidcomputation]`; see Figure \autoref{fig:assemblyindex} for an example.
@@ -63,7 +63,11 @@ Beyond life detection, AT and MA have been proposed in methods to generate novel
 
 ![*Assembly Pathways for Anthracene*. Starting with bonds as building blocks (yellow), a joining operation yields progressively larger structures by combining any two compatible structures that have already been constructed (arrows). These intermediate structures must obey valence rules but otherwise do not have to be physically accessible or chemically synthesizable. There may be many assembly pathways from building blocks to a target structure&mdash;in this case, Anthracene (green)&mdash;but the length of any shortest such pathway (blue) is that structure's assembly index.\label{fig:assemblyindex}](figures/anthracene.pdf){ width=80% }
 
-Despite these promising applications, computing MA efficiently remains a challenge.
+
+
+# Statement of Need
+
+Despite AT's promising applications, computing MA efficiently remains a challenge.
 In general, exact MA calculation is an NP-hard problem `[@Kempes2024-assemblytheory]`; i.e., the necessary computing resources are likely to grow exponentially with the target structure's size.
 Previous software to compute assembly indices have been closed-source, platform-dependent, or written in languages rarely used by the broader scientific community.
 For example, the original software to compute a split-branch approximation of MA (an upper bound on the exact value) was written in C++ and depended on the MSVC compiler, making it difficult to deploy to non-Windows machines `[@Marshall2021-identifyingmolecules]`.
