@@ -79,14 +79,54 @@ Finally, the latest `AssemblyCPP` implementation is again written in C++ but is 
 With `ORCA`, we provide a high-performance, cross-platform Rust package for fast MA calculation while also providing Python bindings for key functionality, offering the best efficiency without sacrificing accessibility.
 By including test and benchmark suites, we additionally lay the foundation for fair, reproducible comparisons of future algorithmic improvements and new techniques.
 
+# Design
+`ORCA` is not a single algorithmic implementation of assembly index calculations. 
+Rather it is a library that can be used to implement a diversity of algorithmic approaches. 
+As AT matures, we expect new algorithmic implementations will develop. 
+The design philosophy behind `ORCA` is to provide a source of ground truth, and robust comparison for future implementations.
+These could include novel methods for exact calculation of assembly indices, or they may be approximation methods that leverage advances in machine learning `[@Gebhard2022-inferringmolecular, @Marshall2021-identifyingmolecules]`.
 
-# Functionality
-*ORCA* provides a stand-alone executable that can be compiled via `cargo`, as well as libraries for Rust and Python. 
+
+# Contributing and Governance
+
+
+
+# Functionality and Examples
+`ORCA` provides a stand-alone executable that can be compiled via `cargo`, as well as libraries for Rust and Python. 
 The primary function of ORCA is to enable users to compute assembly indices for molecules of interest, and benchmark algorithmic changes against a standard suite of molecules.
+Here we provide examples of how to use the exectuable, how to use the Python library, and how to run tests and benchmarks.
+
+## Building and running the executable
+Building the executable is handled by `cargo`. Inside the main repository you simply need to run:
+```shell
+cargo run tests/mol/aspirin.mol
+```
+This will build the exectuable and compute the assembly index for aspirin (the given input). 
+For repeated use you do not need to rebuild, instead the exectuable can built using 
+```shell
+cargo build -r
+``` 
+This will generate a binary `target/release/orca` which can be used. For example 
+```shell
+./target/release/orca testt/input/aspirin.mol 
+```
+
+## Installing and using the Python library
+[Install instructions]
+
+Once the library is installed you can use it to compute assembly indices directly on RDKIT `Mol` objects in the following way:
+```python
+from rdkit import Chem as Chem
+
+aspirin_mol = Chem.MolFromSmiles("O=C(C)Oc1ccccc1C(=O)O")
+orca.compute_assembly_index(aspirin_mol) # 8
+```
+
+## Running tests and benchmarks
 
 
 # Tests and Benchmarks
-*ORCA* includes a test suite for software validation, and three different benchmarks of progressive comptuational difficulty. 
+`ORCA` includes a test suite for software validation, and three different benchmarks of progressive comptuational difficulty. 
 The test suite ensures key functionality, and robustness of the code base, and it allows developers to quickly test for implementation errors. 
 Testing evaluates more than just final calculations, but the suite tests X molecules for correct MA. 
 The molecules are X, Y, Z (MA 1, 2, 3).
@@ -110,6 +150,7 @@ We selected XX ... [Get info from Olivia]
 Subsets of this database were used to benchmark recent algorithmic progress in `[@Seet2024-computation]`. 
 These data contain molecules with assembly indices between A-B.
 The naive implementation of the algorithm cannot compute these assembly indices in a reasonable time. Using the branch and bound approach from Seet *et. al.* these assembly indices in ~QQ time using a commerce grade laptop. 
+
 
 # Formatting Considerations
 
