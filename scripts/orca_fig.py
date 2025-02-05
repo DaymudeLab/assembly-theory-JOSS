@@ -8,6 +8,12 @@ then uses that dataset to create figres
 """
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
+
+# we can get the path to where scripts, orca, and figs are as follows:
+scripts_path = os.path.dirname(os.path.abspath(__file__))
+figs_path = os.join(os.path.dirname(scripts_path), "figures")
+orca_path = os.join(os.path.dirname(scripts_path), "ORCA")
 
 ######## dataset creation ########
 
