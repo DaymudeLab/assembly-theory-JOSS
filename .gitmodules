@@ -1,3 +1,6 @@
 [submodule "ORCA"]
 	path = ORCA
 	url = git@github.com:DaymudeLab/ORCA.git
+[submodule "assembly_go"]
+	path = assembly_go
+	url = git@github.com:croningp/assembly_go.git
