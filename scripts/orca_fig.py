@@ -47,16 +47,16 @@ orca_path = os.join(os.path.dirname(scripts_path), "ORCA")
 #   y:time to compute
 fig, ax = plt.subplots(tight_layout=True)
 
-ax.scatter('search_space', 'time_to_cmp', data=naive, color=cmc.batlowS(0),
+ax.scatter('search_space', 'time_to_cmp', data=naive, color=cmc.batlow(0.2),
         label="Naive")
-ax.scatter('search_space', 'time_to_cmp', data=logbound, color=cmc.batlowS(1),
+ax.scatter('search_space', 'time_to_cmp', data=logbound, color=cmc.batlow(0.5),
         label="Log-bound")
-ax.scatter('search_space', 'time_to_cmp', data=seetbound, color=cmc.batlowS(2),
+ax.scatter('search_space', 'time_to_cmp', data=seetbound, color=cmc.batlow(0.8),
         label="Seet-bound")
 
 ax.set_xlabel("Search Space")
-ax.set_ylabel("Time to Compute")
+ax.set_ylabel("Time to Compute (units)")
 
-fig.legend(loc='outside right center', fontsize='small')
+fig.legend(fontsize='small')
 
 fig.savefig(figs_path + "/method_comparison.svg")
