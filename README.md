@@ -59,3 +59,6 @@ Then run:
 ```
 benchstat bench_results.txt
 ```
+
+> [!TIP]
+> If this fails, you probably forgot to [set your `GOPATH`](https://go.dev/wiki/SettingGOPATH).
