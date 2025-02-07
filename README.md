@@ -42,7 +42,7 @@ cd assembly_go/cmd/app
 Then run the benchmark with
 
 ```
-go test -bench=. -cpu=1 -count=<iters> > bench_results.txt
+go test -bench=. -cpu=1 -count=<iters> -timeout=0 > assembly_go_bench.txt
 ```
 
 where `<iters>` is replaced by the number of iterations you want to run the benchmark and average the times over.
@@ -57,7 +57,7 @@ go install golang.org/x/perf/cmd/benchstat@latest
 Then run:
 
 ```
-benchstat bench_results.txt
+benchstat assembly_go_bench.txt
 ```
 
 > [!TIP]
