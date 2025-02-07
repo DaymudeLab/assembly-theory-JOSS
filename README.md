@@ -1,7 +1,64 @@
 # ORCA-JOSS
 
-This repository contains the source files for our [Journal of Open Source Science](https://joss.theoj.org/) manuscript on `ORCA`: Open, Reproducible Calculation of Assembly Indices.
+This repository contains the source files for our [Journal of Open Source Science](https://joss.theoj.org/) manuscript on `ORCA`: Open, Reproducible Calculation of Assembly Indices (see the [GitHub repository](https://github.com/DaymudeLab/ORCA)).
 This is a collaboration in the Biodesign Center for Biocomputing, Security and Society at Arizona State University involving&mdash;in alphabetical order by last name, with PIs at the end&mdash;Sean Bergen, Devendra Parkar, Garrett Parzych, Olivia Smith, Devansh Vimal, Joshua J. Daymude, and Cole Mathis.
 
-The associated codebase is contained in this repository as a submodule and its current version can be found [on GitHub](https://github.com/DaymudeLab/ORCA).
 
+## Using This Repository
+
+The primary function of this repository is to house the source files for our JOSS manuscript: `paper.md`, `paper.bib`, and `figures/`.
+
+If you additionally wish to reproduce our benchmarks and associated figures (instructions below), you will need Rust, Go, and Git LFS.
+After cloning this repository, run the following to also pull the submodules:
+
+```
+git submodule init
+git submodule update
+```
+
+
+## Benchmarking Method and Instructions for Reproduction
+
+This paper includes a small benchmark of our `ORCA` assembly index calculations against those of [`assembly_go`](https://github.com/croningp/assembly_go), an earlier implementation written in Go ([Jirasek et al., 2024](https://doi.org/10.1021/acscentsci.4c00120)).
+For the purposes of reproducibilty, this repository includes the versions of `ORCA` and `assembly_go` that we benchmarked as submodules.
+The benchmarks measure only the runtime required to compute assembly pathways and indices, but exclude all setup and teardown (e.g., loading `.mol` files into internal molecule/graph representations).
+The molecule datasets used for benchmarking are described in `paper.md`.
+
+
+### Benchmarking `ORCA`
+
+**TODO**.
+
+
+### Benchmarking `assembly_go`
+
+Set up the `assembly_go` benchmark by copying the benchmark file into the submodule and then going to the appropriate directory:
+
+```
+cp scripts/main_test.go assembly_go/cmd/app/
+cd assembly_go/cmd/app
+```
+
+Then run the benchmark with
+
+```
+go test -bench=. -cpu=1 -count=<iters> -timeout=0 > assembly_go_bench.txt
+```
+
+where `<iters>` is replaced by the number of iterations you want to run the benchmark and average the times over.
+For our paper, we used `-count=100`.
+
+To compute statistics, install `benchstat` with:
+
+```
+go install golang.org/x/perf/cmd/benchstat@latest
+```
+
+Then run:
+
+```
+benchstat assembly_go_bench.txt
+```
+
+> [!TIP]
+> If this fails, you probably forgot to [set your `GOPATH`](https://go.dev/wiki/SettingGOPATH).
