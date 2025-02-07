@@ -3,6 +3,7 @@ package main
 import(
     "GoAssembly/pkg/assembly"
     "log"
+    "math/rand"
     "os"
     "path/filepath"
     "testing"
@@ -49,6 +50,11 @@ func BenchmarkDatasets(b *testing.B) {
             for _, mol_file := range mol_files {
                 graphs = append(graphs, assembly.MolColourGraph(mol_file))
             }
+
+            // Shuffle the list of graphs for better statistics.
+            rand.Shuffle(len(graphs), func(i, j int) {
+                graphs[i], graphs[j] = graphs[j], graphs[i]
+            })
 
             // Reset timer and start actual sub-benchmark.
             b.ResetTimer()
