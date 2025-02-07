@@ -21,7 +21,8 @@ func BenchmarkDatasets(b *testing.B) {
         name string
         path string
     }{
-        {"gdb13", "../../../ORCA/data/gdb13"},
+        {"gdb13_1201", "../../../ORCA/data/gdb13_1201"},
+        {"gdb17_800", "../../../ORCA/data/gdb17_800"},
     }
 
     // Run all sub-benchmarks.

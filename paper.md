@@ -132,7 +132,7 @@ orca.compute_assembly_index(aspirin_mol) # 8
 `ORCA` includes test and benchmark suites for software validation and performance evaluation, respectively.
 Both suites are backed by curated reference datasets representing different classes of molecules, arranged roughly in order of increasing molecular size and complexity:
 
-- `gdb13_1200`: 1,200 small, organic molecular structures sampled from GDB-13, a database of enumerated chemical structures containing Carbon, Hydrogen, Nitrogen, Oxygen, Sulfur, and Chlorine that are constrained only by valence rules and quantum mechanics but may not be chemically stable or synthesizable `[@Reymond2015-chemicalspace]`.
+- `gdb13_1201`: 1,201 small, organic molecular structures sampled from GDB-13, a database of enumerated chemical structures containing Carbon, Hydrogen, Nitrogen, Oxygen, Sulfur, and Chlorine that are constrained only by valence rules and quantum mechanics but may not be chemically stable or synthesizable `[@Reymond2015-chemicalspace]`.
 Our sample includes all XX molecules in GDB-13 with XX&ndash;XX heavy atoms and 200 randomly sampled molecules for each number of heavy atoms between XX and XX.
 These data contain molecules with assembly indices between XX&ndash;XX.
 - `gdb17_1000`: 1,000 organic molecular structures sampled from the larger GDB-17 database, which includes additional nuclei beyond GDB-13, such as the halogens Flourine and Iodine `[@Reymond2015-chemicalspace]`.
