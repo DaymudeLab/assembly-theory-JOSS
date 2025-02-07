@@ -124,32 +124,47 @@ orca.compute_assembly_index(aspirin_mol) # 8
 
 ## Running tests and benchmarks
 
+**TODO**
+
 
 # Tests and Benchmarks
-`ORCA` includes a test suite for software validation, and three different benchmarks of progressive comptuational difficulty. 
-The test suite ensures key functionality, and robustness of the code base, and it allows developers to quickly test for implementation errors. 
-Testing evaluates more than just final calculations, but the suite tests X molecules for correct MA. 
-The molecules are X, Y, Z (MA 1, 2, 3).
-Benchmarks are used to evaluate algorithmic performance. 
-We label the benchmarks `easy`, `moderate` and `difficult`. 
 
-The data for the `easy` benchmark is a suite of small organic molecular structures sampled from `GDB-13`, a database of enumerated chemical structures containing Carbon, Hydrogen, Nitrogen, Oxygen, Sulfur, Chlorine, that represents all possible molecules based on valence rule, without regard to the stability or synthetic accessibility of the molecules themselves `[@Reymond2015-chemicalspace]`.
-We selected a total of 1200 molecules with X-Y heavy atoms. 
-This includes all the molecules with Q-P heavy atoms in the database, and 200 randomly molecules selected molecules for each number of heavy atoms between J-K. 
-These data contain molecules with assembly indices between A-B.
-The naive implementation of the algorithm computes all these assembly indices in ~QQ time using a commerce grade laptop. 
+`ORCA` includes test and benchmark suites for software validation and performance evaluation, respectively.
+Both suites are backed by curated reference datasets representing different classes of molecules, arranged roughly in order of increasing molecular size and complexity:
 
-The data for the `moderate` benchmark is a suite of organic molecular structures sampled from the larger `GDB-17` database, with a focus on the large molecules of between G-H heavy atoms.
-A total of Z molecules were selected `[@Reymond2015-chemicalspace]`. 
-Note that `GDB-17` includes additional nuclei, namely the halogens Flourine, Iodine, beyond `GDB-13`, so not only are these molecules typically larger, they represent more structural diversity `[@Reymond2015-chemicalspace]`. 
-These data contain molecules with assembly indices between A-B.
-The naive implementation of the algorithm computes all these assembly indices in ~QQ time using a commerce grade laptop. 
-
-The data for the `difficult` benchmark is a sample of the COCONUTS natural product database `[@Sorokina2021-coconutonline]`. Natural products (or secondary metabolites) are a rich source of evolved chemical complexity, often exhibiting drug-like properties. 
+- `gdb13_1200`: 1,200 small, organic molecular structures sampled from GDB-13, a database of enumerated chemical structures containing Carbon, Hydrogen, Nitrogen, Oxygen, Sulfur, and Chlorine that are constrained only by valence rules and quantum mechanics but may not be chemically stable or synthesizable `[@Reymond2015-chemicalspace]`.
+Our sample includes all XX molecules in GDB-13 with XX&ndash;XX heavy atoms and 200 randomly sampled molecules for each number of heavy atoms between XX and XX.
+These data contain molecules with assembly indices between XX&ndash;XX.
+- `gdb17_1000`: 1,000 organic molecular structures sampled from the larger GDB-17 database, which includes additional nuclei beyond GDB-13, such as the halogens Flourine and Iodine `[@Reymond2015-chemicalspace]`.
+Compared to GDB-13, these molecules are typically larger and represent more structural diversity.
+Our sample includes **TODO** explain heavy atoms/distribution.
+These data contain molecules with assembly indices between XX&ndash;XX.
+- `coconut_50`: 50 natural products sampled from the COCONUT database `[@Sorokina2021-coconutonline]`.
+Natural products (or secondary metabolites) are a rich source of evolved chemical complexity, often exhibiting drug-like properties.
 We selected XX ... [Get info from Olivia]
-Subsets of this database were used to benchmark recent algorithmic progress in `[@Seet2024-computation]`. 
-These data contain molecules with assembly indices between A-B.
-The naive implementation of the algorithm cannot compute these assembly indices in a reasonable time. Using the branch and bound approach from Seet *et. al.* these assembly indices in ~QQ time using a commerce grade laptop. 
+Subsets of this database were used to benchmark recent algorithmic progress in `[@Seet2024-rapidcomputation]`. 
+These data contain molecules with assembly indices between XX&ndash;XX.
+
+We curated these reference datasets for their structural diversity and approachable runtime on commodity hardware.
+Larger, more complicated datasets can be easily added as needed.
+
+The `ORCA` test suite contains unit tests validating internal functionality and database tests checking the calculation of correct assembly indices for all molecules in any of our reference datasets.
+Each reference dataset contains an `ma-index.csv` file with ground truth assembly indices.
+Incorrect calculations are flagged for developer review.
+
+Our benchmark suite evaluates `ORCA` performance by running repeated assembly index calculations over individual molecules or entire reference datasets.
+We leverage the `criterion` package for Rust to automatically collect detailed timing statistics, charts, and estimates of performance improvements and regressions.
+As an example, \autoref{tab:benchtimes} shows `ORCA` performance across our three reference datasets against that of `AssemblyGo` `[@Jirasek2024-investigatingquantifying]`, another recent implementation written in Go.
+As an aside, this showcases `ORCA` as not just one algorithm's implementation, but as a framework capable of comparing multiple algorithmic approaches on equal footing, free of differences in underlying datasets or language-specific efficiency issues.
+
+: \label{tab:benchtimes}**TODO**: Caption for table.
+
+| Dataset         | `AssemblyGo` [-@Jirasek2024-investigatingquantifying] | `ORCA`-nobounds | `ORCA`-logbound | `ORCA`-seetbound |
+| :-------------- | ----------------------------------------------------: | --------------: | --------------: | ---------------: |
+| `gdb13_1200`    | 2.409 ± 2% s                                          |                 |                 |                  |
+| `gdb17_1000`    |                                                       |                 |                 |                  |
+| `coconut_50`    |                                                       |                 |                 |                  |
+
 
 
 # Formatting Considerations
