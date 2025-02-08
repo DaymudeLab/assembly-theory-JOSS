@@ -86,8 +86,8 @@ ax.scatter('search_space', 'time_to_cmp', data=dataset["Addition"].sort_values(b
         label="Seet-bound")
 
 ax.set_xlabel("Search Space")
-ax.set_ylabel("Time to Compute")
+ax.set_ylabel("Time to Compute (units)")
 
-fig.legend(loc='outside right center', fontsize='small')
+fig.legend(fontsize='small')
 
 fig.savefig(figs_path + "/method_comparison.svg")
