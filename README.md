@@ -27,7 +27,19 @@ The molecule datasets used for benchmarking are described in `paper.md`.
 
 ### Benchmarking `ORCA`
 
-**TODO**.
+Set up the `ORCA` benchmark by copying the rust benchmark file into the submodule and then going to the appropriate directory:
+
+```
+cp scripts/benchmark.rs ORCA/benches/
+cd ORCA
+```
+
+Then run the benchmark with
+
+```
+cargo bench gdb13
+cargo bench gdb17
+```
 
 
 ### Benchmarking `assembly_go`
@@ -62,3 +74,25 @@ benchstat assembly_go_bench.txt
 
 > [!TIP]
 > If this fails, you probably forgot to [set your `GOPATH`](https://go.dev/wiki/SettingGOPATH).
+
+
+### Genrating Plots for `ORCA`
+
+Set up the `ORCA` benchmark by copying the rust benchmark file into the submodule and then going to the appropriate directory:
+
+```
+cp scripts/benchmark.rs ORCA/benches/
+cd ORCA
+```
+
+Then run the benchmark with
+
+```
+cargo bench plot
+```
+
+Finally run the python script using following command to generate a comparision scatter plot for different molecules and methods used as `method_comparison.svg` in  `figures` folder:
+
+```
+python3 scripts/orca_fig.py
+```

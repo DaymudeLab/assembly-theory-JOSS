@@ -10,14 +10,45 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import cmcrameri.cm as cmc
+import json
+import csv
 
 # we can get the path to where scripts, orca, and figs are as follows:
 scripts_path = os.path.dirname(os.path.abspath(__file__))
-figs_path = os.join(os.path.dirname(scripts_path), "figures")
-orca_path = os.join(os.path.dirname(scripts_path), "ORCA")
+figs_path = os.path.join(os.path.dirname(scripts_path), "figures")
+orca_path = os.path.join(os.path.dirname(scripts_path), "ORCA")
 
 ######## dataset creation ########
 
+mol_search_space = {}
+with open(os.path.join(orca_path, "target", "criterion", "molecule_space.csv"), 'r') as file:
+    csv_reader = csv.reader(file)
+    for row in csv_reader:
+        mol_name, search_space = row
+        mol_search_space[mol_name] = search_space
+
+subfolders = [ f.path for f in os.scandir(os.path.join(orca_path, "target", "criterion", "plot_bench")) if f.is_dir() ]
+
+dataset = {
+    "Naive": pd.DataFrame(columns=["mol_name", "search_space", "time_to_cmp"]),
+    "Log": pd.DataFrame(columns=["mol_name", "search_space", "time_to_cmp"]),
+    "Addition": pd.DataFrame(columns=["mol_name", "search_space", "time_to_cmp"])
+}
+
+for benchmark in subfolders:
+    benchmark_name = benchmark.split("/")[-1]
+    if benchmark_name == "report":
+        continue
+    
+    mol_name, method = benchmark_name.split("_")
+    
+    if method not in dataset.keys():
+        continue
+    
+    with open(f'{benchmark}/new/estimates.json', 'r') as file:
+        data = json.load(file)
+
+        dataset[method] = pd.concat([pd.DataFrame([[mol_name, int(mol_search_space[mol_name]), float(data["mean"]["point_estimate"])]], columns=dataset[method].columns), dataset[method]], ignore_index=True)
 
 
 ######## figure  creation ########
@@ -47,11 +78,11 @@ orca_path = os.join(os.path.dirname(scripts_path), "ORCA")
 #   y:time to compute
 fig, ax = plt.subplots(tight_layout=True)
 
-ax.scatter('search_space', 'time_to_cmp', data=naive, color=cmc.batlow(0.2),
+ax.scatter('search_space', 'time_to_cmp', data=dataset["Naive"].sort_values(by="search_space"), color=cmc.batlow(0.2),
         label="Naive")
-ax.scatter('search_space', 'time_to_cmp', data=logbound, color=cmc.batlow(0.5),
+ax.scatter('search_space', 'time_to_cmp', data=dataset["Log"].sort_values(by="search_space"), color=cmc.batlow(0.5),
         label="Log-bound")
-ax.scatter('search_space', 'time_to_cmp', data=seetbound, color=cmc.batlow(0.8),
+ax.scatter('search_space', 'time_to_cmp', data=dataset["Addition"].sort_values(by="search_space"), color=cmc.batlow(0.8),
         label="Seet-bound")
 
 ax.set_xlabel("Search Space")
