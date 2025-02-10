@@ -60,10 +60,15 @@ pub fn jossplot_bench(c: &mut Criterion) {
     // Loop over all datasets of interest.
     for dataset in ["gdb13_1201", "gdb17_800"].iter() {
         // Iterate over each molecule file from the current dataset.
-        let paths = fs::read_dir(format!("data/{dataset}")).unwrap();
+        let mut paths: Vec<_> =
+            fs::read_dir(format!("data/{dataset}"))
+            .unwrap()
+            .filter_map(|r| r.ok())
+            .collect();
+        paths.sort_by_key(|p| p.path());
         for path in paths {
             // If the file is a .mol, parse it as a Molecule.
-            let name = path.unwrap().path();
+            let name = path.path();
             if name.extension().and_then(OsStr::to_str) != Some("mol") {
                 continue;
             }
@@ -72,13 +77,17 @@ pub fn jossplot_bench(c: &mut Criterion) {
                 .expect(&format!("Could not read file {name:?}"))
             ).expect(&format!("Failed to parse {name:?}"));
 
+            // Make a string ID using this molecule's dataset and filename.
+            let mol_fname = name.file_name().unwrap().to_str().unwrap();
+            let id = format!("{dataset}-{mol_fname}");
+
             // Benchmark assembly index calculation for this molecule using the
             // different bound options.
             let bounds = [vec![], vec![Bound::Log(log_bound)], vec![Bound::Addition(addition_bound)]];
             let bound_strs = ["naive", "logbound", "addbound"];
             for (bound, bound_str) in zip(&bounds, &bound_strs) {
                 group.bench_with_input(
-                    BenchmarkId::new(format!("{bound_str}"), format!("{name:?}")),
+                    BenchmarkId::new(format!("{bound_str}"), &id),
                     bound, |b, bound| {
                         b.iter(|| index_search(&mol, &bound));
                 });
@@ -87,7 +96,7 @@ pub fn jossplot_bench(c: &mut Criterion) {
             // Record this molecule's number of duplicate isomorphic subgraphs
             // to the CSV file.
             let dup_iso_subs = mol.matches().count().to_string();
-            csv.write_record(&[format!("{name:?}"), dup_iso_subs]).unwrap();
+            csv.write_record(&[id, dup_iso_subs]).unwrap();
         }
     }
 
