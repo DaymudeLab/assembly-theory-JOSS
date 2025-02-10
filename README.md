@@ -27,7 +27,7 @@ The molecule datasets used for benchmarking are described in `paper.md`.
 
 ### Benchmarking `ORCA`
 
-Set up the `ORCA` benchmark by copying the rust benchmark file into the submodule and then going to the appropriate directory:
+Set up the `ORCA` benchmark by copying the Rust benchmark file into the appropriate submodule and then going to the corresponding directory:
 
 ```
 cp scripts/benchmark.rs ORCA/benches/
@@ -37,14 +37,13 @@ cd ORCA
 Then run the benchmark with
 
 ```
-cargo bench gdb13
-cargo bench gdb17
+cargo bench datasets
 ```
 
 
 ### Benchmarking `assembly_go`
 
-Set up the `assembly_go` benchmark by copying the benchmark file into the submodule and then going to the appropriate directory:
+Set up the `assembly_go` benchmark by copying the Go benchmark file into the appropriate submodule and then going to the corresponding directory:
 
 ```
 cp scripts/main_test.go assembly_go/cmd/app/
@@ -76,23 +75,27 @@ benchstat assembly_go_bench.txt
 > If this fails, you probably forgot to [set your `GOPATH`](https://go.dev/wiki/SettingGOPATH).
 
 
-### Genrating Plots for `ORCA`
+## Generating Plots for `ORCA`
 
-Set up the `ORCA` benchmark by copying the rust benchmark file into the submodule and then going to the appropriate directory:
+Our manuscript includes a scatterplot of molecules' numbers of duplicate isomorphic subgraphs (an estimation of the difficulty of their assembly index calculation) vs. `ORCA` calculation time per molecule.
+Instructions for reproducing that figure on your own hardware are below.
+
+Copy the Rust benchmark file into the appropriate submodule (if you haven't already) and then go to the corresponding directory:
 
 ```
 cp scripts/benchmark.rs ORCA/benches/
 cd ORCA
 ```
 
-Then run the benchmark with
+Then run the benchmark generating the data for the plot with
 
 ```
-cargo bench plot
+cargo bench jossplot
 ```
 
-Finally run the python script using following command to generate a comparision scatter plot for different molecules and methods used as `method_comparison.svg` in  `figures` folder:
+Finally, come back to this directory and run the Python plotting script to generate `figures/method_comparison.svg`:
 
 ```
-python3 scripts/orca_fig.py
+cd ..
+python scripts/orca_fig.py
 ```
