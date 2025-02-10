@@ -1,15 +1,55 @@
-use std::fs;
-
-use orca::{assembly::{
-    addition_bound, index, index_and_states, log_bound, search_space, Bound,
-}, molecule::Molecule};
+use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main};
 use csv::Writer;
+use std::ffi::OsStr;
+use std::fs;
+use std::iter::zip;
 
-use criterion::{criterion_group, criterion_main, Criterion};
-use orca::loader;
+use orca::{molecule::Molecule, loader, assembly::{
+    index_search, Bound, log_bound, addition_bound,
+}};
 
+pub fn dataset_bench(c: &mut Criterion) {
+    // Define a new criterion benchmark group of dataset benchmarks.
+    let mut group = c.benchmark_group("datasets");
 
-pub fn plot_benchmark(c: &mut Criterion) {
+    // Loop over all datasets of interest.
+    for dataset in ["gdb13_1201", "gdb17_800"].iter() {
+        // Load all molecules from the given dataset.
+        let paths = fs::read_dir(&format!("data/{dataset}")).unwrap();
+        let mut mol_list: Vec<Molecule> = Vec::new();
+        for path in paths {
+            let name = path.unwrap().path();
+            if name.extension().and_then(OsStr::to_str) != Some("mol") {
+                continue;
+            }
+            mol_list.push(
+                loader::parse_molfile_str(
+                    &fs::read_to_string(name.clone())
+                    .expect(&format!("Could not read file {name:?}"))
+                ).expect(&format!("Failed to parse {name:?}")));
+        }
+
+        // For each of the bounds options, run the benchmark over all molecules
+        // in this dataset.
+        let bounds = [vec![], vec![Bound::Log(log_bound)], vec![Bound::Addition(addition_bound)]];
+        let bound_strs = ["nobound", "logbound", "addbound"];
+        for (bound, bound_str) in zip(&bounds, &bound_strs) {
+            let id = format!("{dataset}-{bound_str}");
+            group.bench_with_input(
+                BenchmarkId::new("index_search", &id), bound, |b, bound| {
+                    b.iter(|| {
+                        for mol in &mol_list {
+                            index_search(&mol, &bound);
+                        }
+                    });
+            });
+        }
+    }
+
+    group.finish();
+}
+
+pub fn jossplot_bench(c: &mut Criterion) {
     let benchmark = "gdb17_800";
     fs::create_dir_all("./target/criterion").unwrap();
     let mut csv_wtr = Writer::from_path("./target/criterion/molecule_space.csv").unwrap();
@@ -30,12 +70,13 @@ pub fn plot_benchmark(c: &mut Criterion) {
                     let molecule = loader::parse_molfile_str(&molfile).expect("Cannot parse molfile.");
                     
                     // Run the three bounds for generating Assembly Index
-                    group.bench_function(format!("{mol_name}_Naive"), |b| b.iter(|| index_and_states(&molecule, &[])));
-                    group.bench_function(format!("{mol_name}_Log"),|b| b.iter(|| index_and_states(&molecule, &[Bound::Log(log_bound)])));
-                    group.bench_function(format!("{mol_name}_Addition"),|b| b.iter(|| index_and_states(&molecule, &[Bound::Addition(addition_bound)])));
+                    group.bench_function(format!("{mol_name}_Naive"), |b| b.iter(|| index_search(&molecule, &[])));
+                    group.bench_function(format!("{mol_name}_Log"),|b| b.iter(|| index_search(&molecule, &[Bound::Log(log_bound)])));
+                    group.bench_function(format!("{mol_name}_Addition"),|b| b.iter(|| index_search(&molecule, &[Bound::Addition(addition_bound)])));
                     
                     // Run the search-space algo
-                    csv_wtr.write_record(&[mol_name, &search_space(&molecule).to_string()]).unwrap();
+                    let dup_subgraphs = molecule.matches().count().to_string();
+                    csv_wtr.write_record(&[mol_name, &dup_subgraphs]).unwrap();
                 }
                 _ => {}
             }
@@ -45,43 +86,5 @@ pub fn plot_benchmark(c: &mut Criterion) {
     csv_wtr.flush().unwrap();
 }
 
-pub fn gdb13_benchmark(c: &mut Criterion) {
-    let paths = fs::read_dir("data/gdb13_1201").unwrap(); //gdb13
-
-    let mut molecules_list: Vec<Molecule> = Vec::new();
-    for path in paths {
-        let name = path.unwrap().path();
-        let molfile = fs::read_to_string(name.clone()).expect("Cannot read file");
-        let molecule = loader::parse_molfile_str(&molfile).expect("Cannot parse molecule");
-        molecules_list.push(molecule);
-    }
-    c.bench_function("gdb13", |b| b.iter(|| 
-        {
-            for molecule in &molecules_list {
-                index(&molecule);
-            }
-        }
-    ));
-}
-
-pub fn gdb17_benchmark(c: &mut Criterion) {
-    let paths = fs::read_dir("data/gdb17_800").unwrap(); //gdb13
-
-    let mut molecules_list: Vec<Molecule> = Vec::new();
-    for path in paths {
-        let name = path.unwrap().path();
-        let molfile = fs::read_to_string(name.clone()).expect("Cannot read file");
-        let molecule = loader::parse_molfile_str(&molfile).expect("Cannot parse molecule");
-        molecules_list.push(molecule);
-    }
-    c.bench_function("gdb17", |b| b.iter(|| 
-        {
-            for molecule in &molecules_list {
-                index(&molecule);
-            }
-        }
-    ));
-}
-
-criterion_group!(benches, gdb13_benchmark, gdb17_benchmark, plot_benchmark);
+criterion_group!(benches, dataset_bench, jossplot_bench);
 criterion_main!(benches);
