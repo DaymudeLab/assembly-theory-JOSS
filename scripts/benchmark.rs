@@ -3,6 +3,7 @@ use csv::Writer;
 use std::ffi::OsStr;
 use std::fs;
 use std::iter::zip;
+use std::path::Path;
 
 use orca::{molecule::Molecule, loader, assembly::{
     index_search, Bound, log_bound, addition_bound,
@@ -15,7 +16,7 @@ pub fn dataset_bench(c: &mut Criterion) {
     // Loop over all datasets of interest.
     for dataset in ["gdb13_1201", "gdb17_800"].iter() {
         // Load all molecules from the given dataset.
-        let paths = fs::read_dir(format!("data/{dataset}")).unwrap();
+        let paths = fs::read_dir(Path::new("data").join(dataset)).unwrap();
         let mut mol_list: Vec<Molecule> = Vec::new();
         for path in paths {
             let name = path.unwrap().path();
@@ -55,13 +56,15 @@ pub fn jossplot_bench(c: &mut Criterion) {
 
     // Set up CSV file for recording the number of duplicate isomorphic
     // subgraphs per molecule.
-    let mut csv = Writer::from_path("../scripts/jossplot.csv").unwrap();
+    let crit_path = Path::new("target").join("criterion").join("jossplot");
+    fs::create_dir_all(&crit_path).unwrap();
+    let mut csv = Writer::from_path(&crit_path.join("jossplot.csv")).unwrap();
 
     // Loop over all datasets of interest.
     for dataset in ["gdb13_1201", "gdb17_800"].iter() {
         // Iterate over each molecule file from the current dataset.
         let mut paths: Vec<_> =
-            fs::read_dir(format!("data/{dataset}"))
+            fs::read_dir(Path::new("data").join(dataset))
             .unwrap()
             .filter_map(|r| r.ok())
             .collect();
