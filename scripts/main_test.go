@@ -9,9 +9,9 @@ import(
     "testing"
 )
 
-// Always run benchmarks with one worker thread, the default buffer size, and
-// the "shortest" algorithm variant, which is the only one implemented.
-var workers = 1
+// Always run benchmarks with the default #workers and buffer size and the
+// "shortest" algorithm variant, which is the only one implemented.
+var workers = 100
 var bufsize = 100
 var variant = "shortest"
 
