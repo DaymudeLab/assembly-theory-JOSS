@@ -82,6 +82,13 @@ benchstat assembly_go_bench.txt
 Our manuscript includes a scatterplot of molecules' numbers of duplicate isomorphic subgraphs (a rough estimate of their complexity) vs. their mean `ORCA` assembly index calculation time.
 Instructions for reproducing that figure on your own hardware are below.
 
+We use the [`uv`](https://docs.astral.sh/uv/) tool to manage Python environments.
+Install it and then run the following to get all dependencies:
+
+```
+uv sync
+```
+
 Copy the Rust benchmark file into the appropriate submodule (if you haven't already) and then go to the corresponding directory:
 
 ```
@@ -99,5 +106,5 @@ Finally, come back to this directory and run the Python plotting script to gener
 
 ```
 cd ..
-python scripts/jossplot.py
+uv run scripts/jossplot.py
 ```

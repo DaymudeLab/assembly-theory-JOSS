@@ -37,32 +37,32 @@ if __name__ == "__main__":
 
         # Gather per molecule data.
         for mol_name, mol_path in [(d.name, d.path) for d in
-                                   os.scandir(osp.join(args.crit_path, bound))]:
+                                   os.scandir(osp.join(args.crit_path, bound))
+                                   if d.name[:5] == 'gdb17']:
             # Set molecule name and duplicate isomorphic subgraph count.
-            results["mol_name"] += mol_name
-            results["dup_iso_subs"] += dup_iso_subs[mol_name]
+            results["mol_name"].append(mol_name)
+            results["dup_iso_subs"].append(dup_iso_subs[mol_name])
 
             # Retrieve and set assembly index calculation time in seconds.
             with open(osp.join(mol_path, "new", "estimates.json")) as f:
-                crit_data = json.load(f)
-                results["time"] += float(crit_data["mean"]["point_estimate"])
+                mean_time = float(json.load(f)["mean"]["point_estimate"])
+                results["time"].append(mean_time)
                 results["time"][-1] /= 1e9
 
         # Convert results dict to DataFrame.
         mol_dfs[bound] = pd.DataFrame(data=results)
         mol_dfs[bound].sort_values(by="dup_iso_subs", inplace=True)
-        print(mol_dfs[bound])
 
     # Plot molecules' number of duplicate isomorphic subgraphs vs. their mean
     # assembly index calculation time as a scatter plot.
     fig, ax = plt.subplots(dpi=300, facecolor='w', tight_layout=True)
     ax.scatter("dup_iso_subs", "time", data=mol_dfs["naive"],
-               color=cmc.batlow(0.2), label="Naive")
+               s=3, color=cmc.batlow(0.2), label="Naive")
     ax.scatter("dup_iso_subs", "time", data=mol_dfs["logbound"],
-               color=cmc.batlow(0.5), label="Log. Bound")
+               s=3, color=cmc.batlow(0.5), label="Log. Bound")
     ax.scatter("dup_iso_subs", "time", data=mol_dfs["addbound"],
-               color=cmc.batlow(0.8), label="Int. Add. Bound")
-    ax.set(xlabel="# Duplicate Isomorphic Subgraphs",
-           ylabel="ORCA Assembly Index Calculation Time (seconds)")
-    fig.legend(fontsize='small')
+               s=3, color=cmc.batlow(0.8), label="Int. Add. Bound")
+    ax.set(xlabel="# Duplicate Isomorphic Subgraphs", yscale='log',
+           ylabel="ORCA Assembly Index Calculation Time (seconds, log scale)")
+    ax.legend(loc='best', fontsize='small')
     fig.savefig(osp.join(args.figs_path, "jossplot.png"))

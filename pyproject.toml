@@ -1,0 +1,11 @@
+[project]
+name = "orca-joss"
+version = "0.1.0"
+description = "Data parsing and plotting scripts for the ORCA-JOSS manuscript"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "cmcrameri>=1.9",
+    "matplotlib>=3.10.0",
+    "pandas>=2.2.3",
+]
