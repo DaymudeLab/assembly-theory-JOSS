@@ -65,4 +65,4 @@ if __name__ == "__main__":
     ax.set(xlabel="# Duplicate Isomorphic Subgraphs", yscale='log',
            ylabel="ORCA Assembly Index Calculation Time (seconds, log scale)")
     ax.legend(loc='best', fontsize='small')
-    fig.savefig(osp.join(args.figs_path, "jossplot.png"))
+    fig.savefig(osp.join(args.figs_path, "jossplot.pdf"))
