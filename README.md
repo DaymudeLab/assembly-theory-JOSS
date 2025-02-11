@@ -40,6 +40,8 @@ Then run the benchmark with
 cargo bench datasets
 ```
 
+The results can be viewed in the report created at `ORCA/target/criterion/datasets/report/index.html`.
+
 
 ### Benchmarking `assembly_go`
 
@@ -77,7 +79,7 @@ benchstat assembly_go_bench.txt
 
 ## Generating Plots for `ORCA`
 
-Our manuscript includes a scatterplot of molecules' numbers of duplicate isomorphic subgraphs (an estimation of the difficulty of their assembly index calculation) vs. `ORCA` calculation time per molecule.
+Our manuscript includes a scatterplot of molecules' numbers of duplicate isomorphic subgraphs (a rough estimate of their complexity) vs. their mean `ORCA` assembly index calculation time.
 Instructions for reproducing that figure on your own hardware are below.
 
 Copy the Rust benchmark file into the appropriate submodule (if you haven't already) and then go to the corresponding directory:
@@ -93,9 +95,9 @@ Then run the benchmark generating the data for the plot with
 cargo bench jossplot
 ```
 
-Finally, come back to this directory and run the Python plotting script to generate `figures/method_comparison.svg`:
+Finally, come back to this directory and run the Python plotting script to generate `figures/jossplot.png`:
 
 ```
 cd ..
-python scripts/orca_fig.py
+python scripts/jossplot.py
 ```
