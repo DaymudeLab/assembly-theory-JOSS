@@ -135,7 +135,7 @@ Both suites are backed by curated reference datasets representing different clas
 - `gdb13_1201`: 1,201 small, organic molecular structures sampled from GDB-13, a database of enumerated chemical structures containing Carbon, Hydrogen, Nitrogen, Oxygen, Sulfur, and Chlorine that are constrained only by valence rules and quantum mechanics but may not be chemically stable or synthesizable `[@Reymond2015-chemicalspace]`.
 Our sample includes all XX molecules in GDB-13 with XX&ndash;XX heavy atoms and 200 randomly sampled molecules for each number of heavy atoms between XX and XX.
 These data contain molecules with assembly indices between XX&ndash;XX.
-- `gdb17_1000`: 1,000 organic molecular structures sampled from the larger GDB-17 database, which includes additional nuclei beyond GDB-13, such as the halogens Flourine and Iodine `[@Reymond2015-chemicalspace]`.
+- `gdb17_800`: 800 organic molecular structures sampled from the larger GDB-17 database, which includes additional nuclei beyond GDB-13, such as the halogens Flourine and Iodine `[@Reymond2015-chemicalspace]`.
 Compared to GDB-13, these molecules are typically larger and represent more structural diversity.
 Our sample includes **TODO** explain heavy atoms/distribution.
 These data contain molecules with assembly indices between XX&ndash;XX.
@@ -159,30 +159,15 @@ As an aside, this showcases `ORCA` as not just one algorithm's implementation, b
 
 : \label{tab:benchtimes}**TODO**: Caption for table.
 
-| Dataset         | `AssemblyGo` [-@Jirasek2024-investigatingquantifying] | `ORCA`-nobounds | `ORCA`-logbound | `ORCA`-seetbound |
-| :-------------- | ----------------------------------------------------: | --------------: | --------------: | ---------------: |
-| `gdb13_1200`    | 2.409 ± 2% s                                          |                 |                 |                  |
-| `gdb17_1000`    |                                                       |                 |                 |                  |
-| `coconut_50`    |                                                       |                 |                 |                  |
+| Dataset         | `AssemblyGo` [-@Jirasek2024-investigatingquantifying] | `ORCA` (naive) | `ORCA` (log bound) | `ORCA` (add bound) |
+| :-------------- | ----------------------------------------------------: | -------------: | -----------------: | -----------------: |
+| `gdb13_1201`    |                                                       |                |                    |                    |
+| `gdb17_800`     |                                                       |                |                    |                    |
+| `coconut_50`    |                                                       |                |                    |                    |
 
+**TODO**: Interpretation and explanation of the scatter plot figure.
 
-
-# Formatting Considerations
-
-$\LaTeX$ formatting works as usual, with single dollar signs for inline math, double dollar signs for self-standing equations, and begin-end equation environments for labeled equations.
-
-Citations look like this:
-- `@author:2001`  ->  "Author et al. (2001)"
-- `[@author:2001]` -> "(Author et al., 2001)"
-- `[@author1:2001; @author2:2001]` -> "(Author1 et al., 2001; Author2 et al., 2002)"
-
-Figures can be included like this:
-![Caption for example figure.\label{fig:example}](figure.png)
-and referenced from text using \autoref{fig:example}.
-
-Figure sizes can be customized by adding an optional second parameter:
-![Caption for example figure.](figure.png){ width=20% }
-
+![*TODO*. Caption for figure.\label{fig:timescatter}](figures/jossplot.pdf){ width=75% }
 
 
 # Acknowledgements
