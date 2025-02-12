@@ -181,9 +181,12 @@ All results are reported as mean runtime $\pm$ 95% confidence interval.
 
 
 
-# Contributing and Governance
+# Availability and Governance
 
-**TODO**
+`ORCA` source code and documentation are openly available on [GitHub](https://github.com/DaymudeLab/ORCA).
+Following the standard practice for Rust packages, `ORCA` is dual-licensed under the MIT and Apache-2.0 licenses.
+External feedback and code contributions are handled through the usual Issues and Pull Request interfaces; guidelines for contributions are listed in `HACKING.md`.
+The project's *maintainers* (initially Vimal, Daymude, and Mathis) will govern the project using the committee model: high-level decisions about the project's direction require maintainer consensus, major code changes require majority approval, hotfixes and patches require at least one approval, new maintainers may be added by unanimous decision of the existing maintainers, and existing maintainers may step down with advance notice.
 
 
 
