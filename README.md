@@ -17,6 +17,13 @@ git submodule init
 git submodule update
 ```
 
+We use [`uv`](https://docs.astral.sh/uv/) to manage Python environments.
+[Install it](https://docs.astral.sh/uv/getting-started/installation/) and then run the following to get all dependencies:
+
+```shell
+uv sync
+```
+
 
 ## Benchmarking Method and Instructions for Reproduction
 
@@ -41,8 +48,6 @@ Then run the benchmark with
 cargo bench datasets
 ```
 
-The results can be viewed in the report created at `ORCA/target/criterion/datasets/report/index.html`.
-
 
 ### Benchmarking `assembly_go`
 
@@ -56,43 +61,28 @@ cd assembly_go/cmd/app
 Then run the benchmark with
 
 ```shell
-go test -bench=. -cpu=1 -count=<iters> -timeout=0 > assembly_go_bench.txt
+go test -bench=. -cpu=1 -count=<iters> -timeout=0 > datasets_bench.tsv
 ```
 
 where `<iters>` is replaced by the number of iterations you want to run the benchmark and average the times over.
 For our paper, we used `-count=100`.
 
-To compute statistics, install `benchstat` with:
 
-```shell
-go install golang.org/x/perf/cmd/benchstat@latest
+### Getting Benchmark Results
+
+From this `ORCA-JOSS` directory, run the following to get the benchmark statistics.
+
+```
+uv run scripts/bench_stats.py
 ```
 
-Then run:
-
-```shell
-benchstat assembly_go_bench.txt
-```
-
-> [!TIP]
-> If this fails, you probably forgot to [set your `GOPATH`](https://go.dev/wiki/SettingGOPATH).
-
-> [!NOTE]
-> `benchstat` computes the median benchmark time and the 95% confidence interval for the median.
-> This is not directly comparable to what we report in the paper, which is the *mean* benchmark time and 95% confidence interval for the mean.
+This script reports the mean benchmark time and 95% confidence interval of the mean for each algorithm&ndash;dataset pair.
 
 
 ## Generating Plots for `ORCA`
 
 Our manuscript includes a scatterplot of molecules' numbers of duplicate isomorphic subgraphs (a rough estimate of their complexity) vs. their mean `ORCA` assembly index calculation time.
 Instructions for reproducing that figure on your own hardware are below.
-
-We use the [`uv`](https://docs.astral.sh/uv/) tool to manage Python environments.
-[Install it](https://docs.astral.sh/uv/getting-started/installation/) and then run the following to get all dependencies:
-
-```shell
-uv sync
-```
 
 Copy the Rust benchmark file into the appropriate submodule (if you haven't already) and then go to the corresponding directory:
 
