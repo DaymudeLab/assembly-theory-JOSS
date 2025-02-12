@@ -157,15 +157,23 @@ Incorrect calculations are flagged for developer review.
 Our benchmark suite evaluates `ORCA` performance by running repeated assembly index calculations over individual molecules or entire reference datasets.
 We leverage the `criterion` package for Rust to automatically collect detailed timing statistics, charts, and estimates of performance improvements and regressions.
 As an example, \autoref{tab:benchtimes} shows `ORCA` performance across our three reference datasets against that of `AssemblyGo` [@Jirasek2024-investigatingquantifying], another recent implementation written in Go.
-As an aside, this showcases `ORCA` as not just one algorithm's implementation, but as a framework capable of comparing multiple algorithmic approaches on equal footing, free of differences in underlying datasets or language-specific efficiency issues.
+Depending on the dataset and choice of `ORCA` algorithm, `ORCA` outperforms `AssemblyGo` by XX&ndash;XX times.
+The 16.9&ndash;18.1x speedup on the `gdb13_1201` dataset most clearly represents the efficiency of Rust over Go, since those molecules are so small that they barely benefit from algorithmic improvements.
+Algorithmic improvements such as branch-and-bound with an integer addition chain bound [@Seet2024-rapidcomputation] over the trivial logarithmic bound [@Jirasek2024-investigatingquantifying] or no bound at all ("naive") yield more dramatic speedups for larger molecules, like those in `gdb17_800`.
+This internal comparison showcases `ORCA` as a framework capable of comparing multiple algorithmic approaches on equal footing, free of differences in underlying datasets or language-specific efficiency issues.
 
-: \label{tab:benchtimes}**TODO**: Caption for table.
+: \label{tab:benchtimes} Benchmark execution times for `AssemblyGo` [@Jirasek2024-investigatingquantifying] vs. `ORCA`.
+`AssemblyGo` uses its default parameters.
+`ORCA` has three algorithm settings: "naive" which fully enumerates all non-duplicate assembly pathways; "logbound" which improves over "naive" by eliminating any assembly pathways longer than $\log_2b$, where $b$ is the molecule's number of bonds [@Jirasek2024-investigatingquantifying]; and "addbound" which improves over "logbound" by eliminating any assembly pathways longer than a bound provided by an integer addition chain [@Seet2024-rapidcomputation].
+The benchmark times the sequential MA calculation of all molecules in a given dataset, excluding the time required to parse and load `.mol` files into internal molecular graph representations.
+We repeated the benchmark 100 times on a single CPU for each software&ndash;dataset pair.
+All results are reported as mean runtime $\pm$ 95% confidence interval.
 
-| Dataset       | `AssemblyGo` [-@Jirasek2024-investigatingquantifying] | `ORCA` (naive)   | `ORCA` (log bound) | `ORCA` (add bound) |
-| :------------ | ----------------------------------------------------: | ---------------: | -----------------: | -----------------: |
-| `gdb13_1201`  | XXX $\pm$ XXX s                                       |  XXX $\pm$ XXX s | XXX $\pm$ XXX s    | XXX $\pm$ XXX s    |
-| `gdb17_800`   | XXX $\pm$ XXX s                                       |  XXX $\pm$ XXX s | XXX $\pm$ XXX s    | XXX $\pm$ XXX s    |
-| `coconut_200` | XXX $\pm$ XXX s                                       |  XXX $\pm$ XXX s | XXX $\pm$ XXX s    | XXX $\pm$ XXX s    |
+| Dataset       | `AssemblyGo`       | `ORCA`-naive         | `ORCA`-logbound     | `ORCA`-addbound     |
+| ------- | ---------- | ---------- | ---------- | ---------- |
+| `gdb13_1201`  | 1.943 s $\pm$ 3.28% | 0.115 s $\pm$ 0.07% | 0.114 s $\pm$ 0.07% | 0.107 s $\pm$ 0.02% |
+| `gdb17_800`   | TODO                | 38.06 s $\pm$ 0.35% | 19.40 s $\pm$ 0.57% | 5.796 s $\pm$ 0.37% |
+| `coconut_200` | TODO                | TODO                | TODO                | TODO                |
 
 **TODO**: Interpretation and explanation of \autoref{fig:timescatter}.
 

@@ -77,6 +77,10 @@ benchstat assembly_go_bench.txt
 > [!TIP]
 > If this fails, you probably forgot to [set your `GOPATH`](https://go.dev/wiki/SettingGOPATH).
 
+> [!NOTE]
+> `benchstat` computes the median benchmark time and the 95% confidence interval for the median.
+> This is not directly comparable to what we report in the paper, which is the *mean* benchmark time and 95% confidence interval for the mean.
+
 
 ## Generating Plots for `ORCA`
 
