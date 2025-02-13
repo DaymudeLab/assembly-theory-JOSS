@@ -18,7 +18,7 @@ authors:
     orcid: 0009-0008-4789-9603
     equal-contrib: true
     affiliation: "1, 2"
-  - name: Olivia Smith
+  - name: Olivia M. Smith
     orcid: 0009-0004-2299-3522
     equal-contrib: true
     affiliation: "1, 3"
@@ -48,8 +48,8 @@ bibliography: paper.bib
 
 # Summary
 
-We present `ORCA` (**O**pen, **R**eproducible **C**omputation of **A**ssembly Indices), a Rust package for computing *assembly indices* and *minimum assembly pathways* of biochemical structures.
-These are key complexity measures of *assembly theory*, a recent theoretical framework characterizing how selection occurs across diverse systems, most importantly chemistry [@Walker2024-experimentallymeasured; @Sharma2023-assemblytheory].
+We present `ORCA` (**O**pen, **R**eproducible **C**omputation of **A**ssembly Indices), a Rust package for computing *assembly indices* of biochemical structures.
+This is a key complexity measure of *assembly theory*, a recent theoretical framework qunatifying selection across diverse systems, most importantly chemistry [@Walker2024-experimentallymeasured; @Sharma2023-assemblytheory].
 `ORCA` is designed for researchers and practitioners alike, providing (i) extensible, high-performance implementations of assembly index calculation algorithms, (ii) comprehensive benchmarks against which current and future algorithmic improvements can be tested, and (iii) Python bindings and `RDKit`-compatible data loaders to support integration with existing computational pipelines.
 
 
@@ -77,18 +77,19 @@ The more recent `AssemblyGo` implementation computes MA exactly, but is written 
 Finally, the latest `AssemblyCPP` implementation is again written in C++ but is closed-source, prohibiting its use and verification by the community [@Seet2024-rapidcomputation].
 
 With `ORCA`, we provide a high-performance, cross-platform Rust package for fast MA calculation while also providing Python bindings for key functionality, offering the best efficiency without sacrificing accessibility.
+We chose Rust for its advantages of cross-platform support, memory-safety, performant runtime, convenient parallelism, and integrated testing and documentation [@Perkel2020-whyscientists].
 By including test and benchmark suites, we also lay a foundation for fair, reproducible comparisons of future algorithmic improvements and new techniques.
 
 
 
 # Design
 
+**TODO**: CM & JD are leaning toward folding this section into the previous paragraph. One issue about the ML sentence, which is the main new idea here, is that it suggests the presence of a lot of data to train on, which we're not exactly providing here.
+
 `ORCA` is not a single algorithmic implementation of assembly index calculations; rather, it is a library that can be used to implement a diversity of algorithmic approaches.
 As AT matures, we expect new algorithmic implementations will develop. 
 The design philosophy behind `ORCA` is to provide a source of ground truth and robust comparison for future implementations.
 These could include novel methods for exact calculation of assembly indices, or they may be approximation methods that leverage advances in machine learning [@Gebhard2022-inferringmolecular; @Marshall2021-identifyingmolecules].
-
-**TODO**: Anything else we want to say here?
 
 
 
@@ -124,10 +125,6 @@ aspirin_mol = Chem.MolFromSmiles("O=C(C)Oc1ccccc1C(=O)O")
 orca.compute_assembly_index(aspirin_mol) # 8
 ```
 
-## Running tests and benchmarks
-
-**TODO**
-
 
 # Tests and Benchmarks
 
@@ -143,9 +140,9 @@ Our sample includes 200 randomly sampled molecules for each number of heavy atom
 These molecules' MA range from 5&ndash;15.
 - `coconut_200`: 200 natural products sampled from the COCONUT database [@Sorokina2021-coconutonline].
 Natural products (or secondary metabolites) are a rich source of evolved chemical complexity, often exhibiting drug-like properties.
-We selected XX ... [Get info from Olivia]
 Subsets of this database were used to benchmark recent algorithmic progress in [@Seet2024-rapidcomputation]. 
-These molecules' assembly indices range from XX&ndash;XX.
+Our sample includes XX randomly sampled molecules for each number of heavy atoms from 15&ndash;25.
+These molecules' MA range from XX&ndash;XX.
 
 We curated these reference datasets for their structural diversity and approachable runtime on commodity hardware.
 Larger, more demanding datasets can be easily added as needed.
@@ -162,7 +159,8 @@ The 16.9&ndash;18.1x speedup on the `gdb13_1201` dataset most clearly represents
 Algorithmic improvements such as branch-and-bound with an integer addition chain bound [@Seet2024-rapidcomputation] over the trivial logarithmic bound [@Jirasek2024-investigatingquantifying] or no bound at all ("naive") yield more dramatic speedups for larger molecules, like those in `gdb17_800`.
 This internal comparison showcases `ORCA` as a framework capable of comparing multiple algorithmic approaches on equal footing, free of differences in underlying datasets or language-specific efficiency issues.
 
-: \label{tab:benchtimes} Benchmark execution times for `AssemblyGo` [@Jirasek2024-investigatingquantifying] vs. `ORCA`.
+: \label{tab:benchtimes} **TODO**: Rerun `ORCA` with the new bitset package and update results accordingly.
+Benchmark execution times for `AssemblyGo` [@Jirasek2024-investigatingquantifying] vs. `ORCA`.
 `AssemblyGo` uses its default parameters.
 `ORCA` has three algorithm settings: "naive" which fully enumerates all non-duplicate assembly pathways; "logbound" which improves over "naive" by eliminating any assembly pathways longer than $\log_2b$, where $b$ is the molecule's number of bonds [@Jirasek2024-investigatingquantifying]; and "addbound" which improves over "logbound" by eliminating any assembly pathways longer than a bound provided by an integer addition chain [@Seet2024-rapidcomputation].
 The benchmark times the sequential MA calculation of all molecules in a given dataset, excluding the time required to parse and load `.mol` files into internal molecular graph representations.
@@ -175,9 +173,11 @@ All results are reported as mean runtime $\pm$ 95% confidence interval.
 | `gdb17_800`   |  1239 s $\pm$ 0.20% | 38.06 s $\pm$ 0.35% | 19.40 s $\pm$ 0.57% | 5.796 s $\pm$ 0.37% |
 | `coconut_200` | TODO                | TODO                | TODO                | TODO                |
 
-**TODO**: Interpretation and explanation of \autoref{fig:timescatter}.
+If finer-grained timing insights are needed, `ORCA` can also benchmark assembly index calculations for each individual molecule in a reference dataset.
+For example, \autoref{fig:timescatter} shows the calculation time of each molecule in `gdb17_800` for three different algorithm settings.
+This is useful for teasing out which molecules are "hard" and characterizing where algorithmic improvements make the largest impact.
 
-![*TODO*. Caption for figure.\label{fig:timescatter}](figures/jossplot.pdf){ width=75% }
+![*Per-Molecule Benchmark Times*. The mean assembly index calculation time across 100 samples for each molecule (dot) in `gdb17_800` as a function of the molecule's number of duplicate isomorphic subgraphs, a measure roughly correlated with the molecule's size and complexity. The same three `ORCA ` algorithm settings from \autoref{tab:benchtimes} are shown here.\label{fig:timescatter}](figures/jossplot.pdf){ width=75% }
 
 
 
@@ -190,9 +190,26 @@ The project's *maintainers* (initially Vimal, Daymude, and Mathis) will govern t
 
 
 
+# Author Contributions
+
+GP, DV, and CM formalized the branch-and-bound algorithm design.
+GP and SB formalized the integer and vector addition chain bounds.
+DV was the primary software developer (architecture, command line interface, molecule representations, recursive-descent `.mol` parsing, unit tests, basic benchmarks, performance engineering).
+GP implemented all bound calculations.
+DP implemented the original `.mol` parser and dataset-based benchmarks.
+CM implemented the Python interface.
+OMS curated all reference datasets and assembly index ground truths with input from CM.
+SB and JJD wrote the `AssemblyGo` benchmarks.
+JJD conducted and analyzed the benchmarks shown in \autoref{tab:benchtimes}.
+DP, SB, and GP produced the molecule-based visualization in \autoref{fig:timescatter}.
+JJD and CM wrote the paper.
+
+
+
 # Acknowledgements
 
-J.J.D. and G.P. are supported in part by NSF award CCF-2312537.
+JJD and GP are supported in part by NSF award CCF-2312537.
+DV is supported by the ASU Biodesign Institute.
 **TODO**: Other acks?
 
 
