@@ -157,7 +157,7 @@ Incorrect calculations are flagged for developer review.
 Our benchmark suite evaluates `ORCA` performance by running repeated assembly index calculations over individual molecules or entire reference datasets.
 We leverage the `criterion` package for Rust to automatically collect detailed timing statistics, charts, and estimates of performance improvements and regressions.
 As an example, \autoref{tab:benchtimes} shows `ORCA` performance across our three reference datasets against that of `AssemblyGo` [@Jirasek2024-investigatingquantifying], another recent implementation written in Go.
-Depending on the dataset and choice of `ORCA` algorithm, `ORCA` outperforms `AssemblyGo` by XX&ndash;XX times.
+Depending on the dataset and choice of `ORCA` algorithm, `ORCA` outperforms `AssemblyGo` by 16.9&ndash;213.8x.
 The 16.9&ndash;18.1x speedup on the `gdb13_1201` dataset most clearly represents the efficiency of Rust over Go, since those molecules are so small that they barely benefit from algorithmic improvements.
 Algorithmic improvements such as branch-and-bound with an integer addition chain bound [@Seet2024-rapidcomputation] over the trivial logarithmic bound [@Jirasek2024-investigatingquantifying] or no bound at all ("naive") yield more dramatic speedups for larger molecules, like those in `gdb17_800`.
 This internal comparison showcases `ORCA` as a framework capable of comparing multiple algorithmic approaches on equal footing, free of differences in underlying datasets or language-specific efficiency issues.
@@ -169,10 +169,10 @@ The benchmark times the sequential MA calculation of all molecules in a given da
 We repeated the benchmark 100 times on a single CPU for each software&ndash;dataset pair.
 All results are reported as mean runtime $\pm$ 95% confidence interval.
 
-| Dataset       | `AssemblyGo`       | `ORCA`-naive         | `ORCA`-logbound     | `ORCA`-addbound     |
-| ------- | ---------- | ---------- | ---------- | ---------- |
+| Dataset       | `AssemblyGo`        | `ORCA`-naive        | `ORCA`-logbound     | `ORCA`-addbound     |
+| ------- | ----------: | ----------: | ----------: | ----------: |
 | `gdb13_1201`  | 1.943 s $\pm$ 3.28% | 0.115 s $\pm$ 0.07% | 0.114 s $\pm$ 0.07% | 0.107 s $\pm$ 0.02% |
-| `gdb17_800`   | TODO                | 38.06 s $\pm$ 0.35% | 19.40 s $\pm$ 0.57% | 5.796 s $\pm$ 0.37% |
+| `gdb17_800`   |  1239 s $\pm$ 0.20% | 38.06 s $\pm$ 0.35% | 19.40 s $\pm$ 0.57% | 5.796 s $\pm$ 0.37% |
 | `coconut_200` | TODO                | TODO                | TODO                | TODO                |
 
 **TODO**: Interpretation and explanation of \autoref{fig:timescatter}.

@@ -30,8 +30,8 @@ if __name__ == "__main__":
     results = defaultdict(dict)
 
     # Load assembly_go benchmark outputs.
-    ago_df = pd.read_csv(args.ago_path, sep='\t', skiprows=4, header=None,
-                         names=['bench', 'reps', 'time']).dropna()
+    ago_df = pd.read_csv(args.ago_path, sep='\t', skiprows=4, skipfooter=2,
+                         header=None, names=['bench', 'reps', 'time']).dropna()
     ago_df['dataset'] = ago_df.bench.apply(lambda x: x.strip().split('/')[1])
     ago_df.time = ago_df.time.apply(lambda x: float(x.split()[0]))
 
