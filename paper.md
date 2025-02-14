@@ -8,32 +8,25 @@ tags:
 authors:
   - name: Sean Bergen
     orcid: 0009-0004-3570-5120
-    equal-contrib: true
     affiliation: "1, 2"
   - name: Devendra Parkar
     orcid: 0009-0009-0133-8875
-    equal-contrib: true
     affiliation: "1, 2"
   - name: Garrett Parzych
     orcid: 0009-0008-4789-9603
-    equal-contrib: true
     affiliation: "1, 2"
   - name: Olivia M. Smith
     orcid: 0009-0004-2299-3522
-    equal-contrib: true
     affiliation: "1, 3"
   - name: Devansh Vimal
     orcid: 0009-0006-2794-8995
-    equal-contrib: true
     affiliation: 1
   - name: Joshua J. Daymude
     orcid: 0000-0001-7294-5626
-    equal-contrib: true
     affiliation: "1, 2"
   - name: Cole Mathis
     orcid: 0000-0001-8424-9169
     corresponding: true
-    equal-contrib: true
     affiliation: "1, 3"
 affiliations:
   - name: Biodesign Center for Biocomputing, Security and Society, Arizona State University, United States
@@ -194,9 +187,9 @@ The project's *maintainers* (initially Vimal, Daymude, and Mathis) will govern t
 
 GP, DV, and CM formalized the branch-and-bound algorithm design.
 GP and SB formalized the integer and vector addition chain bounds.
-DV was the primary software developer (architecture, command line interface, molecule representations, recursive-descent `.mol` parsing, unit tests, basic benchmarks, performance engineering).
+DV was the primary software developer (architecture, command line interface, molecule representations, unit tests, performance engineering).
 GP implemented all bound calculations.
-DP implemented the original `.mol` parser and dataset-based benchmarks.
+DP and DV implemented the `.mol` file parser and dataset-based benchmarks.
 CM implemented the Python interface.
 OMS curated all reference datasets and assembly index ground truths with input from CM.
 SB and JJD wrote the `AssemblyGo` benchmarks.
