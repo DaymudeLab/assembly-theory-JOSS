@@ -124,6 +124,8 @@ orca.compute_assembly_index(aspirin_mol) # 8
 `ORCA` includes test and benchmark suites for software validation and performance evaluation, respectively.
 Both suites are backed by curated reference datasets representing different classes of molecules, arranged roughly in order of increasing molecular size and complexity:
 
+- `checks`: 15 named molecules (e.g., anthracene, aspirin, caffeine, morphine) primarily used for rapid testing and sanity checking.
+These molecules' number of heavy atoms range from 5&ndash;28 and have MA from 3&ndash;18.
 - `gdb13_1201`: 1,201 small, organic molecular structures sampled from GDB-13, a database of enumerated chemical structures containing Carbon, Hydrogen, Nitrogen, Oxygen, Sulfur, and Chlorine that are constrained only by valence rules and quantum mechanics but may not be chemically stable or synthesizable [@Reymond2015-chemicalspace].
 Our sample includes all 201 molecules in GDB-13 with 4&ndash;5 heavy atoms and 200 randomly sampled molecules for each number of heavy atoms from 6&ndash;10.
 These molecules' MA range from 2&ndash;9.
@@ -131,11 +133,11 @@ These molecules' MA range from 2&ndash;9.
 Compared to GDB-13, these molecules are typically larger and represent more structural diversity.
 Our sample includes 200 randomly sampled molecules for each number of heavy atoms from 14&ndash;17.
 These molecules' MA range from 5&ndash;15.
-- `coconut_200`: 200 natural products sampled from the COCONUT database [@Sorokina2021-coconutonline].
+- `coconut_220`: 220 natural products sampled from the COCONUT database [@Sorokina2021-coconutonline].
 Natural products (or secondary metabolites) are a rich source of evolved chemical complexity, often exhibiting drug-like properties.
 Subsets of this database were used to benchmark recent algorithmic progress in [@Seet2024-rapidcomputation]. 
-Our sample includes XX randomly sampled molecules for each number of heavy atoms from 15&ndash;25.
-These molecules' MA range from XX&ndash;XX.
+Our sample includes 20 randomly sampled molecules for each number of heavy atoms from 15&ndash;25.
+These molecules' MA range from 5&ndash;20.
 
 We curated these reference datasets for their structural diversity and approachable runtime on commodity hardware.
 Larger, more demanding datasets can be easily added as needed.
@@ -152,8 +154,7 @@ The 16.9&ndash;18.1x speedup on the `gdb13_1201` dataset most clearly represents
 Algorithmic improvements such as branch-and-bound with an integer addition chain bound [@Seet2024-rapidcomputation] over the trivial logarithmic bound [@Jirasek2024-investigatingquantifying] or no bound at all ("naive") yield more dramatic speedups for larger molecules, like those in `gdb17_800`.
 This internal comparison showcases `ORCA` as a framework capable of comparing multiple algorithmic approaches on equal footing, free of differences in underlying datasets or language-specific efficiency issues.
 
-: \label{tab:benchtimes} **TODO**: Rerun `ORCA` with the new bitset package and update results accordingly.
-Benchmark execution times for `AssemblyGo` [@Jirasek2024-investigatingquantifying] vs. `ORCA`.
+: \label{tab:benchtimes} Benchmark execution times for `AssemblyGo` [@Jirasek2024-investigatingquantifying] vs. `ORCA`.
 `AssemblyGo` uses its default parameters.
 `ORCA` has three algorithm settings: "naive" which fully enumerates all non-duplicate assembly pathways; "logbound" which improves over "naive" by eliminating any assembly pathways longer than $\log_2b$, where $b$ is the molecule's number of bonds [@Jirasek2024-investigatingquantifying]; and "addbound" which improves over "logbound" by eliminating any assembly pathways longer than a bound provided by an integer addition chain [@Seet2024-rapidcomputation].
 The benchmark times the sequential MA calculation of all molecules in a given dataset, excluding the time required to parse and load `.mol` files into internal molecular graph representations.
@@ -162,9 +163,10 @@ All results are reported as mean runtime $\pm$ 95% confidence interval.
 
 | Dataset       | `AssemblyGo`        | `ORCA`-naive        | `ORCA`-logbound     | `ORCA`-addbound     |
 | ------- | ----------: | ----------: | ----------: | ----------: |
+| `checks`      | TODO                | TODO                | TODO                | TODO                |
 | `gdb13_1201`  | 1.943 s $\pm$ 3.28% | 0.115 s $\pm$ 0.07% | 0.114 s $\pm$ 0.07% | 0.107 s $\pm$ 0.02% |
 | `gdb17_800`   |  1239 s $\pm$ 0.20% | 38.06 s $\pm$ 0.35% | 19.40 s $\pm$ 0.57% | 5.796 s $\pm$ 0.37% |
-| `coconut_200` | TODO                | TODO                | TODO                | TODO                |
+| `coconut_220` | TODO                | TODO                | TODO                | TODO                |
 
 If finer-grained timing insights are needed, `ORCA` can also benchmark assembly index calculations for each individual molecule in a reference dataset.
 For example, \autoref{fig:timescatter} shows the calculation time of each molecule in `gdb17_800` for three different algorithm settings.

@@ -23,7 +23,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Define fixed constants.
-    datasets = ['gdb13_1201', 'gdb17_800']
+    datasets = ['checks', 'gdb13_1201', 'gdb17_800', 'coconut_220']
     orca_algs = ['naive', 'logbound', 'addbound']
 
     # Create results dict of the form {algo: {dataset: (mean, 95% conf.)}}.

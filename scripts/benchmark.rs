@@ -14,7 +14,7 @@ pub fn dataset_bench(c: &mut Criterion) {
     let mut group = c.benchmark_group("datasets");
 
     // Loop over all datasets of interest.
-    for dataset in ["gdb13_1201", "gdb17_800"].iter() {
+    for dataset in ["checks", "gdb13_1201", "gdb17_800", "coconut_220"].iter() {
         // Load all molecules from the given dataset.
         let paths = fs::read_dir(Path::new("data").join(dataset)).unwrap();
         let mut mol_list: Vec<Molecule> = Vec::new();

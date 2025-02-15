@@ -32,6 +32,9 @@ For the purposes of reproducibilty, this repository includes the versions of `OR
 The benchmarks measure only the runtime required to compute assembly pathways and indices, but exclude all setup and teardown (e.g., loading `.mol` files into internal molecule/graph representations).
 The molecule datasets used for benchmarking are described in `paper.md`.
 
+> [!WARNING]
+> Some of these benchmarks take a long time to run, especially when averaging over many samples on large reference datasets.
+
 
 ### Benchmarking `ORCA`
 
@@ -61,11 +64,11 @@ cd assembly_go/cmd/app
 Then run the benchmark with
 
 ```shell
-go test -bench=. -cpu=1 -count=<iters> -timeout=0 > datasets_bench.tsv
+go test -bench=. -cpu=<cpus> -count=<iters> -timeout=0 > datasets_bench.tsv
 ```
 
-where `<iters>` is replaced by the number of iterations you want to run the benchmark and average the times over.
-For our paper, we used `-count=100`.
+where `<cpus>` is replaced by the number of CPUs you want to let `assembly_go` parallelize over and `<iters>` is replaced by the number of iterations you want to run the benchmark and average the times over.
+For our paper, we used `-cpus=1` and `-count=100`.
 
 
 ### Getting Benchmark Results
