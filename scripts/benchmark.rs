@@ -6,15 +6,27 @@ use std::iter::zip;
 use std::path::Path;
 
 use orca::{molecule::Molecule, loader, assembly::{
-    index_search, Bound, log_bound, addition_bound,
+    index_search, Bound, log_bound, addition_bound, vec_bound_simple,
+    vec_bound_small_frags
 }};
+
+// Define datasets, bounds, and labels.
+let datasets = ["gdb13_1201", "gdb17_800", "checks", "coconut_220"];
+let bounds = [vec![],
+              vec![Bound::Log(log_bound)],
+              vec![Bound::Addition(addition_bound)],
+              vec![Bound::Addition(addition_bound),
+                   Bound::Vector(vec_bound_simple),
+                   Bound::Vector(vec_bound_small_frags)]];
+let bound_strs = ["naive", "logbound", "addbound", "allbounds"];
+
 
 pub fn dataset_bench(c: &mut Criterion) {
     // Define a new criterion benchmark group of dataset benchmarks.
     let mut group = c.benchmark_group("datasets");
 
     // Loop over all datasets of interest.
-    for dataset in ["checks", "gdb13_1201", "gdb17_800", "coconut_220"].iter() {
+    for dataset in datasets.iter() {
         // Load all molecules from the given dataset.
         let paths = fs::read_dir(Path::new("data").join(dataset)).unwrap();
         let mut mol_list: Vec<Molecule> = Vec::new();
@@ -32,9 +44,14 @@ pub fn dataset_bench(c: &mut Criterion) {
 
         // For each of the bounds options, run the benchmark over all molecules
         // in this dataset.
-        let bounds = [vec![], vec![Bound::Log(log_bound)], vec![Bound::Addition(addition_bound)]];
-        let bound_strs = ["naive", "logbound", "addbound"];
         for (bound, bound_str) in zip(&bounds, &bound_strs) {
+            // Skip the dataset benchmarks that take too long to run.
+            if dataset == "coconut_220"
+                && (bound_str == "naive" || bound_str == "logbound") {
+                continue;
+            }
+
+            // Run the benchmark.
             group.bench_with_input(
                 BenchmarkId::new(format!("{bound_str}"), &dataset),
                 bound, |b, bound| {
@@ -61,7 +78,7 @@ pub fn jossplot_bench(c: &mut Criterion) {
     let mut csv = Writer::from_path(&crit_path.join("jossplot.csv")).unwrap();
 
     // Loop over all datasets of interest.
-    for dataset in ["gdb13_1201", "gdb17_800"].iter() {
+    for dataset in datasets.iter() {
         // Iterate over each molecule file from the current dataset.
         let mut paths: Vec<_> =
             fs::read_dir(Path::new("data").join(dataset))
@@ -86,9 +103,14 @@ pub fn jossplot_bench(c: &mut Criterion) {
 
             // Benchmark assembly index calculation for this molecule using the
             // different bound options.
-            let bounds = [vec![], vec![Bound::Log(log_bound)], vec![Bound::Addition(addition_bound)]];
-            let bound_strs = ["naive", "logbound", "addbound"];
             for (bound, bound_str) in zip(&bounds, &bound_strs) {
+                // Skip the dataset benchmarks that take too long to run.
+                if dataset == "coconut_220"
+                    && (bound_str == "naive" || bound_str == "logbound") {
+                    continue;
+                }
+
+                // Run the benchmark.
                 group.bench_with_input(
                     BenchmarkId::new(format!("{bound_str}"), &id),
                     bound, |b, bound| {
