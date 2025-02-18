@@ -10,20 +10,20 @@ use orca::{molecule::Molecule, loader, assembly::{
     vec_bound_small_frags
 }};
 
-// Define datasets, bounds, and labels.
-let datasets = ["gdb13_1201", "gdb17_800", "checks", "coconut_220"];
-let bounds = [vec![],
-              vec![Bound::Log(log_bound)],
-              vec![Bound::Addition(addition_bound)],
-              vec![Bound::Addition(addition_bound),
-                   Bound::Vector(vec_bound_simple),
-                   Bound::Vector(vec_bound_small_frags)]];
-let bound_strs = ["naive", "logbound", "addbound", "allbounds"];
-
 
 pub fn dataset_bench(c: &mut Criterion) {
     // Define a new criterion benchmark group of dataset benchmarks.
     let mut group = c.benchmark_group("datasets");
+
+    // Define datasets, bounds, and labels.
+    let datasets = ["gdb13_1201", "gdb17_800", "checks", "coconut_220"];
+    let bounds = [vec![],
+                  vec![Bound::Log(log_bound)],
+                  vec![Bound::Addition(addition_bound)],
+                  vec![Bound::Addition(addition_bound),
+                       Bound::Vector(vec_bound_simple),
+                       Bound::Vector(vec_bound_small_frags)]];
+    let bound_strs = ["naive", "logbound", "addbound", "allbounds"];
 
     // Loop over all datasets of interest.
     for dataset in datasets.iter() {
@@ -46,8 +46,8 @@ pub fn dataset_bench(c: &mut Criterion) {
         // in this dataset.
         for (bound, bound_str) in zip(&bounds, &bound_strs) {
             // Skip the dataset benchmarks that take too long to run.
-            if dataset == "coconut_220"
-                && (bound_str == "naive" || bound_str == "logbound") {
+            if *dataset == "coconut_220"
+                && (*bound_str == "naive" || *bound_str == "logbound") {
                 continue;
             }
 
@@ -70,6 +70,16 @@ pub fn dataset_bench(c: &mut Criterion) {
 pub fn jossplot_bench(c: &mut Criterion) {
     // Define a new criterion benchmark group of dataset benchmarks.
     let mut group = c.benchmark_group("jossplot");
+
+    // Define datasets, bounds, and labels.
+    let datasets = ["gdb13_1201", "gdb17_800", "checks", "coconut_220"];
+    let bounds = [vec![],
+                  vec![Bound::Log(log_bound)],
+                  vec![Bound::Addition(addition_bound)],
+                  vec![Bound::Addition(addition_bound),
+                       Bound::Vector(vec_bound_simple),
+                       Bound::Vector(vec_bound_small_frags)]];
+    let bound_strs = ["naive", "logbound", "addbound", "allbounds"];
 
     // Set up CSV file for recording the number of duplicate isomorphic
     // subgraphs per molecule.
@@ -105,8 +115,8 @@ pub fn jossplot_bench(c: &mut Criterion) {
             // different bound options.
             for (bound, bound_str) in zip(&bounds, &bound_strs) {
                 // Skip the dataset benchmarks that take too long to run.
-                if dataset == "coconut_220"
-                    && (bound_str == "naive" || bound_str == "logbound") {
+                if *dataset == "coconut_220"
+                    && (*bound_str == "naive" || *bound_str == "logbound") {
                     continue;
                 }
 
@@ -129,5 +139,9 @@ pub fn jossplot_bench(c: &mut Criterion) {
     csv.flush().unwrap();
 }
 
-criterion_group!(benches, dataset_bench, jossplot_bench);
+criterion_group!{
+    name = benches;
+    config = Criterion::default().sample_size(20);
+    targets = dataset_bench, jossplot_bench
+}
 criterion_main!(benches);
