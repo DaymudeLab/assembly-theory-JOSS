@@ -53,14 +53,13 @@ pub fn dataset_bench(c: &mut Criterion) {
 
             // Run the benchmark.
             group.bench_with_input(
-                BenchmarkId::new(format!("{bound_str}"), &dataset),
-                bound, |b, bound| {
+                BenchmarkId::new(*dataset, &bound_str), bound, |b, bound| {
                     b.iter(|| {
                         for mol in &mol_list {
                             index_search(&mol, &bound);
                         }
                     });
-            });
+                });
         }
     }
 
@@ -122,10 +121,9 @@ pub fn jossplot_bench(c: &mut Criterion) {
 
                 // Run the benchmark.
                 group.bench_with_input(
-                    BenchmarkId::new(format!("{bound_str}"), &id),
-                    bound, |b, bound| {
+                    BenchmarkId::new(&id, &bound_str), bound, |b, bound| {
                         b.iter(|| index_search(&mol, &bound));
-                });
+                    });
             }
 
             // Record this molecule's number of duplicate isomorphic subgraphs
@@ -140,8 +138,8 @@ pub fn jossplot_bench(c: &mut Criterion) {
 }
 
 criterion_group!{
-    name = benches;
+    name = benchmark;
     config = Criterion::default().sample_size(20);
     targets = dataset_bench, jossplot_bench
 }
-criterion_main!(benches);
+criterion_main!(benchmark);

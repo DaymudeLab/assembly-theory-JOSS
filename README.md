@@ -68,7 +68,7 @@ go test -bench=. -cpu=<cpus> -count=<iters> -timeout=0 > datasets_bench.tsv
 ```
 
 where `<cpus>` is replaced by the number of CPUs you want to let `assembly_go` parallelize over and `<iters>` is replaced by the number of iterations you want to run the benchmark and average the times over.
-For our paper, we used `-cpus=1` and `-count=100`.
+For our paper, we used `-cpus=16` and `-count=20`.
 
 
 ### Getting Benchmark Results

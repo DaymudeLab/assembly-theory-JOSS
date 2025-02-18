@@ -23,8 +23,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Define fixed constants.
-    datasets = ['checks', 'gdb13_1201', 'gdb17_800', 'coconut_220']
-    orca_algs = ['naive', 'logbound', 'addbound']
+    datasets = ['gdb13_1201', 'gdb17_800', 'checks', 'coconut_220']
+    orca_algs = ['naive', 'logbound', 'addbound', 'allbounds']
 
     # Create results dict of the form {algo: {dataset: (mean, 95% conf.)}}.
     results = defaultdict(dict)
@@ -45,8 +45,8 @@ if __name__ == "__main__":
         results['assembly_go'][dataset] = (mean_time, conf_perc)
 
     # Do the same for ORCA's three algorithm variants.
-    for orca_alg, dataset in product(orca_algs, datasets):
-        with open(osp.join(args.crit_path, orca_alg, dataset, 'new',
+    for dataset, orca_alg in product(datasets, orca_algs):
+        with open(osp.join(args.crit_path, dataset, orca_alg, 'new',
                            'estimates.json'), 'r') as f:
             stats = json.load(f)
             mean_time = stats['mean']['point_estimate']
