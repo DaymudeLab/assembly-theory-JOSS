@@ -20,49 +20,52 @@ if __name__ == "__main__":
                         help='Path to jossplot criterion output directory')
     parser.add_argument('-F', '--figs_path', type=str, default='figures',
                         help='Path to figures directory')
+    parser.add_argument('-D', '--datasets', nargs='+', default=['gdb17_800'],
+                        help='Space-separated list of datasets to include')
     args = parser.parse_args()
 
-    # Load molecule duplicate isomorphic subgraph counts.
-    dup_iso_subs = {}
+    # Load molecule isomorphic subgraph pair counts.
+    iso_sub_pairs = {}
     with open(osp.join(args.crit_path, "jossplot.csv"), 'r') as f:
         csv_reader = csv.reader(f)
         for row in csv_reader:
-            dup_iso_subs[row[0]] = int(row[1])
+            iso_sub_pairs[row[0]] = int(row[1])
 
     # Load assembly index calculation times per molecule per bound option.
     mol_dfs = {}
-    for bound in ["naive", "logbound", "addbound"]:
+    for bound in ["naive", "logbound", "addbound", "allbounds"]:
         # Set up results dict to turn into a DataFrame.
-        results = {"mol_name": [], "dup_iso_subs": [], "time": []}
+        results = {"mol_name": [], "iso_sub_pairs": [], "time": []}
 
         # Gather per molecule data.
-        for mol_name, mol_path in [(d.name, d.path) for d in
-                                   os.scandir(osp.join(args.crit_path, bound))
-                                   if d.name[:5] == 'gdb17']:
-            # Set molecule name and duplicate isomorphic subgraph count.
+        for mol_name, mol_path in [(d.name, d.path)
+                                   for d in os.scandir(args.crit_path)
+                                   if d.name.split('-')[0] in args.datasets]:
+            # Set molecule name and isomorphic subgraph pair count.
             results["mol_name"].append(mol_name)
-            results["dup_iso_subs"].append(dup_iso_subs[mol_name])
+            results["iso_sub_pairs"].append(iso_sub_pairs[mol_name])
 
             # Retrieve and set assembly index calculation time in seconds.
-            with open(osp.join(mol_path, "new", "estimates.json")) as f:
+            with open(osp.join(mol_path, bound, "new", "estimates.json")) as f:
                 mean_time = float(json.load(f)["mean"]["point_estimate"])
-                results["time"].append(mean_time)
-                results["time"][-1] /= 1e9
+                results["time"].append(mean_time / 1e9)
 
         # Convert results dict to DataFrame.
         mol_dfs[bound] = pd.DataFrame(data=results)
-        mol_dfs[bound].sort_values(by="dup_iso_subs", inplace=True)
+        mol_dfs[bound].sort_values(by="iso_sub_pairs", inplace=True)
 
     # Plot molecules' number of duplicate isomorphic subgraphs vs. their mean
     # assembly index calculation time as a scatter plot.
     fig, ax = plt.subplots(dpi=300, facecolor='w', tight_layout=True)
-    ax.scatter("dup_iso_subs", "time", data=mol_dfs["naive"],
+    ax.scatter("iso_sub_pairs", "time", data=mol_dfs["naive"],
                s=3, color=cmc.batlow(0.2), label="Naive")
-    ax.scatter("dup_iso_subs", "time", data=mol_dfs["logbound"],
-               s=3, color=cmc.batlow(0.5), label="Log. Bound")
-    ax.scatter("dup_iso_subs", "time", data=mol_dfs["addbound"],
-               s=3, color=cmc.batlow(0.8), label="Int. Add. Bound")
-    ax.set(xlabel="# Duplicate Isomorphic Subgraphs", yscale='log',
+    ax.scatter("iso_sub_pairs", "time", data=mol_dfs["logbound"],
+               s=3, color=cmc.batlow(0.4), label="Log. Bound")
+    ax.scatter("iso_sub_pairs", "time", data=mol_dfs["addbound"],
+               s=3, color=cmc.batlow(0.6), label="Int. Add. Bound")
+    ax.scatter("iso_sub_pairs", "time", data=mol_dfs["allbounds"],
+               s=3, color=cmc.batlow(0.8), label="Vec. & Int. Add. Bounds")
+    ax.set(xlabel="# Disjoint Isomorphic Subgraph Pairs", yscale='log',
            ylabel="ORCA Assembly Index Calculation Time (seconds, log scale)")
     ax.legend(loc='best', fontsize='small')
     fig.savefig(osp.join(args.figs_path, "jossplot.pdf"))

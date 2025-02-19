@@ -51,6 +51,10 @@ Then run the benchmark with
 cargo bench datasets
 ```
 
+> [!NOTE]
+> This benchmark skips `ORCA`-naive and `ORCA`-logbound on the `coconut_220` dataset as these runs are prohibitively slow.
+> To obtain these algorithms' benchmark times, we manually modified the benchmark to run just once, killing the process at the 24 hour mark.
+
 
 ### Benchmarking `assembly_go`
 
@@ -70,6 +74,8 @@ go test -bench=. -cpu=<cpus> -count=<iters> -timeout=0 > datasets_bench.tsv
 where `<cpus>` is replaced by the number of CPUs you want to let `assembly_go` parallelize over and `<iters>` is replaced by the number of iterations you want to run the benchmark and average the times over.
 For our paper, we used `-cpus=16` and `-count=20`.
 
+The benchmark for `assembly_go` on `coconut_220` is very slow, so we only ran that version of the benchmark once (i.e., `-count=1`).
+
 
 ### Getting Benchmark Results
 
@@ -84,7 +90,7 @@ This script reports the mean benchmark time and 95% confidence interval of the m
 
 ## Generating Plots for `ORCA`
 
-Our manuscript includes a scatterplot of molecules' numbers of duplicate isomorphic subgraphs (a rough estimate of their complexity) vs. their mean `ORCA` assembly index calculation time.
+Our manuscript includes a scatterplot of molecules' numbers of disjoint isomorphic subgraph pairs (a rough estimate of their complexity) vs. their mean `ORCA` assembly index calculation times for different algorithms.
 Instructions for reproducing that figure on your own hardware are below.
 
 Copy the Rust benchmark file into the appropriate submodule (if you haven't already) and then go to the corresponding directory:

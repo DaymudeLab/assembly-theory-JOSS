@@ -161,8 +161,6 @@ orca.compute_assembly_index(aspirin_mol) # 8
 `ORCA` includes test and benchmark suites for software validation and performance evaluation, respectively.
 Both suites are backed by curated reference datasets representing different classes of molecules, arranged roughly in order of increasing molecular size and complexity:
 
-- `checks`: 15 named molecules (e.g., anthracene, aspirin, caffeine, morphine) primarily used for rapid testing and sanity checking.
-These molecules' number of heavy atoms range from 5&ndash;28 and have MA from 3&ndash;18.
 - `gdb13_1201`: 1,201 small, organic molecular structures sampled from GDB-13, a database of enumerated chemical structures containing Carbon, Hydrogen, Nitrogen, Oxygen, Sulfur, and Chlorine that are constrained only by valence rules and quantum mechanics but may not be chemically stable or synthesizable [@Reymond2015-chemicalspace].
 Our sample includes all 201 molecules in GDB-13 with 4&ndash;5 heavy atoms and 200 randomly sampled molecules for each number of heavy atoms from 6&ndash;10.
 These molecules' MA range from 2&ndash;9.
@@ -170,6 +168,8 @@ These molecules' MA range from 2&ndash;9.
 Compared to GDB-13, these molecules are typically larger and represent more structural diversity.
 Our sample includes 200 randomly sampled molecules for each number of heavy atoms from 14&ndash;17.
 These molecules' MA range from 5&ndash;15.
+- `checks`: 15 named molecules (e.g., anthracene, aspirin, caffeine, morphine) primarily used for rapid testing and sanity checking.
+These molecules' number of heavy atoms range from 5&ndash;28 and have MA from 3&ndash;18.
 - `coconut_220`: 220 natural products sampled from the COCONUT database [@Sorokina2021-coconutonline].
 Natural products (or secondary metabolites) are a rich source of evolved chemical complexity, often exhibiting drug-like properties.
 Subsets of this database were used to benchmark recent algorithmic progress in [@Seet2024-rapidcomputation]. 
@@ -186,23 +186,24 @@ Incorrect calculations are flagged for developer review.
 Our benchmark suite evaluates `ORCA` performance by running repeated assembly index calculations over individual molecules or entire reference datasets.
 We leverage the `criterion` package for Rust to automatically collect detailed timing statistics, charts, and estimates of performance improvements and regressions.
 As an example, \autoref{tab:benchtimes} shows `ORCA` performance across our three reference datasets against that of `AssemblyGo` [@Jirasek2024-investigatingquantifying], another recent implementation written in Go.
-Depending on the dataset and choice of `ORCA` algorithm, `ORCA` outperforms `AssemblyGo` by 16.9&ndash;213.8x.
-The 16.9&ndash;18.1x speedup on the `gdb13_1201` dataset most clearly represents the efficiency of Rust over Go, since those molecules are so small that they barely benefit from algorithmic improvements.
-Algorithmic improvements such as branch-and-bound with an integer addition chain bound [@Seet2024-rapidcomputation] over the trivial logarithmic bound [@Jirasek2024-investigatingquantifying] or no bound at all ("naive") yield more dramatic speedups for larger molecules, like those in `gdb17_800`.
+Depending on the dataset and choice of `ORCA` algorithm, `ORCA` outperforms `AssemblyGo` by one to three orders of magnitude.
+The 8.9&ndash;**TODO**x speedup of `ORCA`-logbound over `AssemblyGo` most clearly represents the efficiency of Rust over Go, since both use the same branch-and-bound approach with a logarithmic bound.
+Further algorithmic improvements such as the integer addition chain bound [@Seet2024-rapidcomputation] and our novel vector addition chain bound yield more dramatic speedups for larger molecules, like those up to 965x for `coconut_220`.
+**TODO**: If `ORCA`-naive is slower than `AssemblyGo`, explain that here.
 This internal comparison showcases `ORCA` as a framework capable of comparing multiple algorithmic approaches on equal footing, free of differences in underlying datasets or language-specific efficiency issues.
 
-: \label{tab:benchtimes} Benchmark execution times for `AssemblyGo` [@Jirasek2024-investigatingquantifying] vs. `ORCA`.
-`AssemblyGo` uses its default parameters.
-The benchmark times the sequential MA calculation of all molecules in a given dataset, excluding the time required to parse and load `.mol` files into internal molecular graph representations.
-We repeated the benchmark 20 times on 16 CPUs for each software&ndash;dataset pair.
-All results are reported as mean runtime $\pm$ 95% confidence interval.
+: \label{tab:benchtimes} Mean benchmark execution times for `AssemblyGo` [@Jirasek2024-investigatingquantifying] vs. `ORCA` across reference datasets.
+The benchmark times the MA calculation of all molecules in a given dataset in sequence, excluding the time required to parse and load `.mol` files into internal molecular graph representations.
+`AssemblyGo` uses its default parameters while `ORCA` tests each of its algorithm variants independently.
+Each benchmark was run on a Linux machine with a 5.7 GHz Ryzen 9 7950X CPU (16 cores) and 64 GB of memory.
+Means are reported over 20 samples per software&ndash;dataset pair, except those marked with an $\ast$ which were prohibitively expensive to run multiple times.
 
-| Dataset       | `AssemblyGo`        | `ORCA`-naive        | `ORCA`-logbound     | `ORCA`-intbound     |
-| ------- | ----------: | ----------: | ----------: | ----------: |
-| `checks`      | TODO                | TODO                | TODO                | TODO                |
-| `gdb13_1201`  | 1.943 s $\pm$ 3.28% | 0.115 s $\pm$ 0.07% | 0.114 s $\pm$ 0.07% | 0.107 s $\pm$ 0.02% |
-| `gdb17_800`   |  1239 s $\pm$ 0.20% | 38.06 s $\pm$ 0.35% | 19.40 s $\pm$ 0.57% | 5.796 s $\pm$ 0.37% |
-| `coconut_220` | TODO                | TODO                | TODO                | TODO                |
+|               | `AssemblyGo`  | `ORCA`-naive  | `ORCA`-logbound | `ORCA`-intbound | `ORCA`-allbounds     |
+| --------- | --------: | --------: | -----------: | -----------: | -----------: | 
+| `gdb13_1201`  |       1.048 s |       0.118 s |         0.117 s |         0.110 s |          **0.109 s** |
+| `gdb17_800`   |     128.396 s |       7.041 s |         5.644 s |         4.476 s |          **4.331 s** |
+| `checks`      |     296.584 s |      13.964 s |         2.787 s |         2.191 s |          **2.001 s** |
+| `coconut_220` | 6.09 h$^\ast$ |   TODO$^\ast$ |     TODO$^\ast$ |        30.123 s |         **22.911 s** |
 
 If finer-grained timing insights are needed, `ORCA` can also benchmark assembly index calculations for each individual molecule in a reference dataset.
 For example, \autoref{fig:timescatter} shows the calculation time of each molecule in `gdb17_800` for three different algorithm settings.

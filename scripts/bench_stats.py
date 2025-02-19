@@ -30,13 +30,19 @@ if __name__ == "__main__":
     results = defaultdict(dict)
 
     # Load assembly_go benchmark outputs.
-    ago_df = pd.read_csv(args.ago_path, sep='\t', skiprows=4, skipfooter=2,
-                         header=None, names=['bench', 'reps', 'time']).dropna()
-    ago_df['dataset'] = ago_df.bench.apply(lambda x: x.strip().split('/')[1])
+    ago_df = pd.read_csv(args.ago_path, sep='\t', header=None,
+                         names=['bench', 'reps', 'time'], engine='python',
+                         skiprows=4, skipfooter=2).dropna()
+    ago_df['dataset'] = ago_df.bench.apply(
+            lambda x: x.strip().split('/')[1].split('-')[0])
     ago_df.time = ago_df.time.apply(lambda x: float(x.split()[0]))
 
     # Compute assembly_go means and 95% confidence intervals.
     for dataset in datasets:
+        # Skip very slow benchmarks that we don't do multiple samples for.
+        if dataset == 'coconut_220':
+            continue
+
         times = np.array(ago_df.loc[ago_df['dataset'] == dataset].time)
         mean_time = times.mean()
         conf = sps.t.interval(0.95, len(times)-1, loc=mean_time,
@@ -46,6 +52,10 @@ if __name__ == "__main__":
 
     # Do the same for ORCA's three algorithm variants.
     for dataset, orca_alg in product(datasets, orca_algs):
+        # Skip very slow benchmarks that we don't do multiple samples for.
+        if dataset == 'coconut_220' and orca_alg in ['naive', 'logbound']:
+            continue
+
         with open(osp.join(args.crit_path, dataset, orca_alg, 'new',
                            'estimates.json'), 'r') as f:
             stats = json.load(f)
@@ -57,5 +67,6 @@ if __name__ == "__main__":
 
     # Print results.
     results_df = pd.DataFrame(results)
-    results_df = results_df.map(lambda x: f'{x[0] / 1e9:.3f} s ± {x[1]:.2f}%')
+    results_df = results_df.map(lambda x: f'{x[0] / 1e9:.3f} s ± {x[1]:.2f}%'
+                                if not pd.isna(x) else 'NaN')
     print(results_df)

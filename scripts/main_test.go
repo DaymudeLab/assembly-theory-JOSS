@@ -25,7 +25,6 @@ func BenchmarkDatasets(b *testing.B) {
         {"gdb13_1201", "../../../ORCA/data/gdb13_1201"},
         {"gdb17_800", "../../../ORCA/data/gdb17_800"},
         {"checks", "../../../ORCA/data/checks"},
-        {"coconut_220", "../../../ORCA/data/coconut_220"},
     }
 
     // Run all sub-benchmarks.
