@@ -64,9 +64,10 @@ Beyond life detection, AT and MA have been proposed in methods to generate novel
 
 Despite AT's promising applications, computing MA efficiently remains a challenge.
 In general, exact MA calculation is an NP-hard problem [@Kempes2024-assemblytheory]; i.e., the necessary computing resources are likely to grow exponentially with a molecule's number of bonds.
-Previous software to compute MA have been closed-source, platform-dependent, or written in languages rarely used by the broader scientific community.
+Previous software to compute MA have been approximate, closed-source, platform-dependent, or written in languages rarely used by the broader scientific community.
 For example, the original software to compute a split-branch approximation of MA (an upper bound on the exact value) was written in C++ and depended on the MSVC compiler, making it difficult to deploy to non-Windows machines [@Marshall2021-identifyingmolecules].
-The more recent `AssemblyGo` implementation computes MA exactly, but is written in Go, yielding worse performance than alternatives and posing an accessibility barrier for most scientific practitioners who are unfamiliar with the language [@Jirasek2024-investigatingquantifying].
+Machine learning methods only provide approximate MA values [@Gebhard2022-inferringmolecular].
+The more recent `AssemblyGo` implementation computes MA exactly but is written in Go, yielding worse performance and posing an accessibility barrier for most scientists who are unfamiliar with the language [@Jirasek2024-investigatingquantifying].
 Finally, the latest `AssemblyCPP` implementation is again written in C++ but is closed-source, prohibiting its use and verification by the community [@Seet2024-rapidcomputation].
 
 With `ORCA`, we provide a high-performance, cross-platform Rust package for fast MA calculation while also providing Python bindings for key functionality, offering the best efficiency without sacrificing accessibility.
@@ -75,39 +76,75 @@ By including test and benchmark suites, we also lay a foundation for fair, repro
 
 
 
-# Design
+# Design and Current Algorithms
 
-**TODO**: CM & JD are leaning toward folding this section into the previous paragraph. One issue about the ML sentence, which is the main new idea here, is that it suggests the presence of a lot of data to train on, which we're not exactly providing here.
+`ORCA` is not a single algorithmic implementation of assembly index calculations; rather, it is a framework and source of ground truth within which a diversity of algorithmic approaches can be validated and compared.
+We purposely designed `ORCA` with a modular algorithm interface and data structures that can be easily extended to handle new algorithmic developments introduced as AT matures.
 
-`ORCA` is not a single algorithmic implementation of assembly index calculations; rather, it is a library that can be used to implement a diversity of algorithmic approaches.
-As AT matures, we expect new algorithmic implementations will develop. 
-The design philosophy behind `ORCA` is to provide a source of ground truth and robust comparison for future implementations.
-These could include novel methods for exact calculation of assembly indices, or they may be approximation methods that leverage advances in machine learning [@Gebhard2022-inferringmolecular; @Marshall2021-identifyingmolecules].
+Currently, `ORCA` implements several top-down, branch-and-bound algorithm variants in which a molecule is recursively fragmented and the MA of smaller fragments are used to determine the MA of their parents [@Marshall2021-identifyingmolecules; @Jirasek2024-investigatingquantifying; @Seet2024-rapidcomputation].
+We briefly summarize these algorithms below, but emphasize that `ORCA` is not limited to this top-down, recursive approach.
+
+- `ORCA`-naive fully enumerates and searches all non-duplicate assembly pathways in an efficient order.
+- `ORCA`-logbound improves over the naive method by eliminating any assembly pathways longer than $\log_2b$, where $b$ is the molecule's number of bonds [@Jirasek2024-investigatingquantifying].
+- `ORCA`-intbound improves over the logarithmic bound by eliminating any assembly pathways longer than a bound provided by an integer addition chain [@Seet2024-rapidcomputation].
+- `ORCA`-allbounds simultaneously applies the previous integer addition chain bound and a novel bound provided by a vector addition chain.
 
 
 
-# Functionality and Examples
+# Functionality and Usage Examples
 
-`ORCA` provides a stand-alone executable that can be compiled via `cargo`, as well as libraries for Rust and Python. 
-The primary function of ORCA is to enable users to compute assembly indices for molecules of interest, and benchmark algorithmic changes against a standard suite of molecules.
-Here we provide examples of how to use the exectuable, how to use the Python library, and how to run tests and benchmarks.
+`ORCA` can be used to compute assembly indices as a standalone executable, as a library imported by other Rust code, or via a Python interface.
+Here, we provide usage examples of each; in the next section, we demonstrate testing and benchmarking functionality.
 
-## Building and running the executable
-Building the executable is handled by `cargo`. Inside the main repository you simply need to run:
+
+## Building and Running the Executable
+
+Rust provides the `cargo` build system and package manager for dependency management, compilation, packaging, and versioning.
+To build the standalone executable, run:
+
 ```shell
-cargo run tests/mol/aspirin.mol
+cargo build --release
 ```
-This will build the exectuable and compute the assembly index for aspirin (the given input). 
-For repeated use you do not need to rebuild, instead the exectuable can built using 
+
+This creates an optimized, portable, standalone executable named `target/release/orca`.
+It takes as input a path to a `.mol` file and returns that molecule's integer assembly index:
+
 ```shell
-cargo build -r
-``` 
-This will generate a binary `target/release/orca` which can be used. For example 
-```shell
-./target/release/orca testt/input/aspirin.mol 
+> ./target/release/orca data/checks/anthracene.mol
+6
 ```
+
+Running with the `--verbose` flag provides additional information, including the input molecule's *number of disjoint, isomorphic subgraph pairs* (i.e., the number of times any molecular substructure is repeated inside the molecule) and the size of the top-down algorithm's *search space* (i.e., its total number of recursive calls).
+
+```shell
+> ./target/release/orca --verbose data/checks/anthracene.mol
+Assembly Index: 6
+Duplicate subgraph pairs: 406
+Search Space: 3143
+```
+
+By default, `ORCA` uses its fastest algorithm for assembly index calculation (currently `ORCA`-allbounds, see the previous section).
+To use a specific bound or disable bounds altogether, set the `--bounds` or `--no-bounds` flags:
+
+```shell
+# ORCA-naive, no bounds
+./target/release/orca --no-bounds <molpath>
+
+# ORCA-logbound, only logarithmic bound (Jirasek et al., 2024)
+./target/release/orca --bounds=log <molpath>
+
+# ORCA-intbound, only integer addition chain bound (Seet et al., 2024)
+./target/release/orca --bounds=intchain <molpath>
+
+# only vector addition chain bound
+./target/release/orca --bounds=vecchain <molpath>
+```
+
+Finally, the `--molecule-info` flag prints the molecule's graph representation as a vertex and edge list, the `--help` flag prints a guide to this command line interface, and the `--version` flag prints the current `ORCA` version.
+
 
 ## Installing and using the Python library
+
 [Install instructions]
 
 Once the library is installed you can use it to compute assembly indices directly on RDKIT `Mol` objects in the following way:
@@ -156,12 +193,11 @@ This internal comparison showcases `ORCA` as a framework capable of comparing mu
 
 : \label{tab:benchtimes} Benchmark execution times for `AssemblyGo` [@Jirasek2024-investigatingquantifying] vs. `ORCA`.
 `AssemblyGo` uses its default parameters.
-`ORCA` has three algorithm settings: "naive" which fully enumerates all non-duplicate assembly pathways; "logbound" which improves over "naive" by eliminating any assembly pathways longer than $\log_2b$, where $b$ is the molecule's number of bonds [@Jirasek2024-investigatingquantifying]; and "addbound" which improves over "logbound" by eliminating any assembly pathways longer than a bound provided by an integer addition chain [@Seet2024-rapidcomputation].
 The benchmark times the sequential MA calculation of all molecules in a given dataset, excluding the time required to parse and load `.mol` files into internal molecular graph representations.
-We repeated the benchmark 100 times on a single CPU for each software&ndash;dataset pair.
+We repeated the benchmark 20 times on 16 CPUs for each software&ndash;dataset pair.
 All results are reported as mean runtime $\pm$ 95% confidence interval.
 
-| Dataset       | `AssemblyGo`        | `ORCA`-naive        | `ORCA`-logbound     | `ORCA`-addbound     |
+| Dataset       | `AssemblyGo`        | `ORCA`-naive        | `ORCA`-logbound     | `ORCA`-intbound     |
 | ------- | ----------: | ----------: | ----------: | ----------: |
 | `checks`      | TODO                | TODO                | TODO                | TODO                |
 | `gdb13_1201`  | 1.943 s $\pm$ 3.28% | 0.115 s $\pm$ 0.07% | 0.114 s $\pm$ 0.07% | 0.107 s $\pm$ 0.02% |
@@ -189,14 +225,14 @@ The project's *maintainers* (initially Vimal, Daymude, and Mathis) will govern t
 
 GP, DV, and CM formalized the branch-and-bound algorithm design.
 GP and SB formalized the integer and vector addition chain bounds.
-DV was the primary software developer (architecture, command line interface, molecule representations, unit tests, performance engineering).
+DV was the primary software developer (architecture, command line interface, molecule representations, unit tests, parallelism, performance engineering).
 GP implemented all bound calculations.
 DP and DV implemented the `.mol` file parser and dataset-based benchmarks.
 CM implemented the Python interface.
 OMS curated all reference datasets and assembly index ground truths with input from CM.
 SB and JJD wrote the `AssemblyGo` benchmarks.
 JJD conducted and analyzed the benchmarks shown in \autoref{tab:benchtimes}.
-DP, SB, and GP produced the molecule-based visualization in \autoref{fig:timescatter}.
+DP, SB, GP, and JJD produced \autoref{fig:timescatter}.
 JJD and CM wrote the paper.
 
 
