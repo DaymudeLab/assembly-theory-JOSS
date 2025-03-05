@@ -117,7 +117,7 @@ It takes as input a path to a `.mol` file and returns that molecule's integer as
 Running with the `--verbose` flag provides additional information, including the input molecule's *number of disjoint, isomorphic subgraph pairs* (i.e., the number of times any molecular substructure is repeated inside the molecule) and the size of the top-down algorithm's *search space* (i.e., its total number of recursive calls).
 
 ```shell
-> ./target/release/orca --verbose data/checks/anthracene.mol
+> ./target/release/orca data/checks/anthracene.mol --verbose
 Assembly Index: 6
 Duplicate subgraph pairs: 406
 Search Space: 3143
@@ -128,16 +128,16 @@ To use a specific bound or disable bounds altogether, set the `--bounds` or `--n
 
 ```shell
 # ORCA-naive, no bounds
-./target/release/orca --no-bounds <molpath>
+./target/release/orca <molpath> --no-bounds
 
 # ORCA-logbound, only logarithmic bound (Jirasek et al., 2024)
-./target/release/orca --bounds=log <molpath>
+./target/release/orca <molpath> --bounds log
 
 # ORCA-intbound, only integer addition chain bound (Seet et al., 2024)
-./target/release/orca --bounds=intchain <molpath>
+./target/release/orca <molpath> --bounds int-chain
 
-# only vector addition chain bound
-./target/release/orca --bounds=vecchain <molpath>
+# ORCA-allbounds, both integer and vector addition chain bounds
+./target/release/orca <molpath> --bounds int-chain vec-chain
 ```
 
 Finally, the `--molecule-info` flag prints the molecule's graph representation as a vertex and edge list, the `--help` flag prints a guide to this command line interface, and the `--version` flag prints the current `ORCA` version.
