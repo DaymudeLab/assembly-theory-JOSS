@@ -5,11 +5,7 @@ use std::fs;
 use std::iter::zip;
 use std::path::Path;
 
-use orca::{molecule::Molecule, loader, assembly::{
-    index_search, Bound, log_bound, addition_bound, vec_bound_simple,
-    vec_bound_small_frags
-}};
-
+use orca::{molecule::Molecule, loader, assembly::{index_search, Bound}};
 
 pub fn dataset_bench(c: &mut Criterion) {
     // Define a new criterion benchmark group of dataset benchmarks.
@@ -18,12 +14,12 @@ pub fn dataset_bench(c: &mut Criterion) {
     // Define datasets, bounds, and labels.
     let datasets = ["gdb13_1201", "gdb17_800", "checks", "coconut_220"];
     let bounds = [vec![],
-                  vec![Bound::Log(log_bound)],
-                  vec![Bound::Addition(addition_bound)],
-                  vec![Bound::Addition(addition_bound),
-                       Bound::Vector(vec_bound_simple),
-                       Bound::Vector(vec_bound_small_frags)]];
-    let bound_strs = ["naive", "logbound", "addbound", "allbounds"];
+                  vec![Bound::Log],
+                  vec![Bound::IntChain],
+                  vec![Bound::IntChain,
+                       Bound::VecChainSimple,
+                       Bound::VecChainSmallFrags]];
+    let bound_strs = ["naive", "logbound", "intbound", "allbounds"];
 
     // Loop over all datasets of interest.
     for dataset in datasets.iter() {
@@ -73,12 +69,12 @@ pub fn jossplot_bench(c: &mut Criterion) {
     // Define datasets, bounds, and labels.
     let datasets = ["gdb13_1201", "gdb17_800", "checks", "coconut_220"];
     let bounds = [vec![],
-                  vec![Bound::Log(log_bound)],
-                  vec![Bound::Addition(addition_bound)],
-                  vec![Bound::Addition(addition_bound),
-                       Bound::Vector(vec_bound_simple),
-                       Bound::Vector(vec_bound_small_frags)]];
-    let bound_strs = ["naive", "logbound", "addbound", "allbounds"];
+                  vec![Bound::Log],
+                  vec![Bound::IntChain],
+                  vec![Bound::IntChain,
+                       Bound::VecChainSimple,
+                       Bound::VecChainSmallFrags]];
+    let bound_strs = ["naive", "logbound", "intbound", "allbounds"];
 
     // Set up CSV file for recording the number of duplicate isomorphic
     // subgraphs per molecule.
