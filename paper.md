@@ -151,25 +151,33 @@ pip install maturin
 maturin develop
 ```
 
-PyORCA computes the assembly index of molecules using RDKit's Mol class. Below is a basic example:
+PyORCA computes the assembly index of molecules using RDKit's `Mol` class. Here's a basic example:
 
 ```python
 import pyorca
 from rdkit import Chem
 
 anthracene = Chem.MolFromSmiles("c1ccc2cc3ccccc3cc2c1")
-pyorca.compute_ma(anthracene) # 6
+pyorca.molecular_assembly(anthracene)  # 6
 ```
 
-PyORCA provides three primary functions:
+## Core Functions  
 
-* `compute_ma(mol: Chem.Mol, bounds: set[str] = None, no_bounds: bool = False, timeout: int = None) -> int`
-Computes the assembly index of a given molecule, with an optional timeout to terminate the computation after a specificed number of seconds.
-* `compute_ma_verbose(mol: Chem.Mol, bounds: set[str] = None, no_bounds: bool = False, timeout: int = None) -> dict`
-Returns performs the same computation but additional details, including the number of duplicated isomorphic subgraphs (duplicates) and the size of the search space (space). 
-* `get_molecule_info(mol: Chem.Mol) -> str`
-Provides a string representation of the molecule’s atom and bond structure, useful for debugging.
+`pyorca` provides three main functions:
 
+- **`molecular_assembly(mol: Chem.Mol, bounds: set[str] = None, no_bounds: bool = False, timeout: int = None, serial: bool = False) -> int`**  
+  Computes the assembly index of a given molecule.
+  - `timeout` (in seconds) sets a limit on computation time, raising a `TimeoutError` if exceeded.  
+  - `serial=True` forces a serial execution mode, mainly useful for debugging.
+
+
+- **`molecular_assembly_verbose(mol: Chem.Mol, bounds: set[str] = None, no_bounds: bool = False, timeout: int = None, serial: bool = False) -> dict`**  
+  Returns additional details, including the number of duplicated isomorphic subgraphs (`duplicates`) and the size of the search space (`space`).  
+  - `timeout` (in seconds) sets a limit on computation time, raising a `TimeoutError` if exceeded.  
+  - `serial=True` forces a serial execution mode, mainly useful for debugging.
+
+- **`molecule_info(mol: Chem.Mol) -> str`**  
+  Returns a string representation of the molecule’s atom and bond structure for debugging.
 
 
 # Tests and Benchmarks
