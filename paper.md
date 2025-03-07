@@ -35,13 +35,13 @@ affiliations:
     index: 2
   - name: School of Complex Adaptive Systems, Arizona State University, United States
     index: 3
-date: 3 February 2025
+date: 6 March 2025
 bibliography: paper.bib
 ---
 
 # Summary
 
-We present `ORCA` (**O**pen, **R**eproducible **C**omputation of **A**ssembly Indices), a Rust package for computing *assembly indices* of biochemical structures.
+We present `ORCA` (**O**pen, **R**eproducible **C**omputation of **A**ssembly Indices), a Rust package for computing *assembly indices* of covalently bonded molecular structures.
 This is a key complexity measure of *assembly theory*, a recent theoretical framework qunatifying selection across diverse systems, most importantly chemistry [@Walker2024-experimentallymeasured; @Sharma2023-assemblytheory].
 `ORCA` is designed for researchers and practitioners alike, providing (i) extensible, high-performance implementations of assembly index calculation algorithms, (ii) comprehensive benchmarks against which current and future algorithmic improvements can be tested, and (iii) Python bindings and `RDKit`-compatible data loaders to support integration with existing computational pipelines.
 
@@ -49,7 +49,7 @@ This is a key complexity measure of *assembly theory*, a recent theoretical fram
 
 # Background
 
-*Assembly theory* (AT) is a recently developed body of theoretical and empirical work focused on characterizing selection in chemical systems [@Sharma2023-assemblytheory; @Walker2024-experimentallymeasured].
+*Assembly theory* (AT) is a recently developed body of theoretical and empirical work focused on characterizing selection in diverse physical systems, most importantly in chemistry [@Sharma2023-assemblytheory; @Walker2024-experimentallymeasured].
 Objects are defined in AT as entities that are finite, distinguishable, decomposable, and persistent in time.
 AT characterizes objects based on their *assembly index*, the minimum number of recursive subcontructions required to construct the object starting from a given set of building blocks [@Jirasek2024-investigatingquantifying; @Seet2024-rapidcomputation].
 The most commonly studied application domain of AT to date is molecular chemistry, where bonds act as the basic building blocks and the quantity of interest is the *molecular assembly index* (MA); see \autoref{fig:assemblyindex} for an example.
@@ -68,7 +68,7 @@ Previous software to compute MA have been approximate, closed-source, platform-d
 For example, the original software to compute a split-branch approximation of MA (an upper bound on the exact value) was written in C++ and depended on the MSVC compiler, making it difficult to deploy to non-Windows machines [@Marshall2021-identifyingmolecules].
 Machine learning methods only provide approximate MA values [@Gebhard2022-inferringmolecular].
 The more recent `AssemblyGo` implementation computes MA exactly but is written in Go, yielding worse performance and posing an accessibility barrier for most scientists who are unfamiliar with the language [@Jirasek2024-investigatingquantifying].
-Finally, the latest `AssemblyCPP` implementation is again written in C++ but is closed-source, prohibiting its use and verification by the community [@Seet2024-rapidcomputation].
+Finally, the latest `AssemblyCPP` implementation has achieved significant performance milestones through a branch-and-bound approach. It is again written in C++ but is not available for public use, prohibiting its use and verification by the community [@Seet2024-rapidcomputation].
 
 With `ORCA`, we provide a high-performance, cross-platform Rust package for fast MA calculation while also providing Python bindings for key functionality, offering the best efficiency without sacrificing accessibility.
 We chose Rust for its advantages of cross-platform support, memory-safety, performant runtime, convenient parallelism, and integrated testing and documentation [@Perkel2020-whyscientists].
@@ -143,17 +143,33 @@ To use a specific bound or disable bounds altogether, set the `--bounds` or `--n
 Finally, the `--molecule-info` flag prints the molecule's graph representation as a vertex and edge list, the `--help` flag prints a guide to this command line interface, and the `--version` flag prints the current `ORCA` version.
 
 
-## Installing and using the Python library
+## Installing and using PyORCA
 
-[Install instructions]
-
-Once the library is installed you can use it to compute assembly indices directly on RDKIT `Mol` objects in the following way:
-```python
-from rdkit import Chem as Chem
-
-aspirin_mol = Chem.MolFromSmiles("O=C(C)Oc1ccccc1C(=O)O")
-orca.compute_assembly_index(aspirin_mol) # 8
+The python library uses `maturin` as a build tool. This needs to be run in a virtual environment. Use the following commands to build and install the library:
+```shell
+pip install maturin
+maturin develop
 ```
+
+PyORCA computes the assembly index of molecules using RDKit's Mol class. Below is a basic example:
+
+```python
+import pyorca
+from rdkit import Chem
+
+anthracene = Chem.MolFromSmiles("c1ccc2cc3ccccc3cc2c1")
+pyorca.compute_ma(anthracene) # 6
+```
+
+PyORCA provides three primary functions:
+
+* `compute_ma(mol: Chem.Mol, bounds: set[str] = None, no_bounds: bool = False, timeout: int = None) -> int`
+Computes the assembly index of a given molecule, with an optional timeout to terminate the computation after a specificed number of seconds.
+* `compute_ma_verbose(mol: Chem.Mol, bounds: set[str] = None, no_bounds: bool = False, timeout: int = None) -> dict`
+Returns performs the same computation but additional details, including the number of duplicated isomorphic subgraphs (duplicates) and the size of the search space (space). 
+* `get_molecule_info(mol: Chem.Mol) -> str`
+Provides a string representation of the molecule’s atom and bond structure, useful for debugging.
+
 
 
 # Tests and Benchmarks
@@ -168,7 +184,7 @@ These molecules' MA range from 2&ndash;9.
 Compared to GDB-13, these molecules are typically larger and represent more structural diversity.
 Our sample includes 200 randomly sampled molecules for each number of heavy atoms from 14&ndash;17.
 These molecules' MA range from 5&ndash;15.
-- `checks`: 15 named molecules (e.g., anthracene, aspirin, caffeine, morphine) primarily used for rapid testing and sanity checking.
+- `checks`: 15 named molecules (e.g., anthracene, aspirin, caffeine, morphine) primarily used for rapid testing.
 These molecules' number of heavy atoms range from 5&ndash;28 and have MA from 3&ndash;18.
 - `coconut_220`: 220 natural products sampled from the COCONUT database [@Sorokina2021-coconutonline].
 Natural products (or secondary metabolites) are a rich source of evolved chemical complexity, often exhibiting drug-like properties.
@@ -176,8 +192,9 @@ Subsets of this database were used to benchmark recent algorithmic progress in [
 Our sample includes 20 randomly sampled molecules for each number of heavy atoms from 15&ndash;25.
 These molecules' MA range from 5&ndash;20.
 
+Ground truth MA values were calculated using the publicly avaiable `AssemblyGo` implementation [@Jirasek2024-investigatingquantifying].
 We curated these reference datasets for their structural diversity and approachable runtime on commodity hardware.
-Larger, more demanding datasets can be easily added as needed.
+Larger, more demanding datasets will be easily added as needed.
 
 The `ORCA` test suite contains unit tests validating internal functionality and database tests checking the calculation of correct assembly indices for all molecules in any of our reference datasets.
 Each reference dataset contains an `ma-index.csv` file with ground truth assembly indices.
