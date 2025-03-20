@@ -6,21 +6,21 @@ tags:
   - astrobiology
   - Rust
 authors:
-  - name: Sean Bergen
-    orcid: 0009-0004-3570-5120
-    affiliation: "1, 2"
-  - name: Devendra Parkar
-    orcid: 0009-0009-0133-8875
-    affiliation: "1, 2"
+  - name: Devansh Vimal
+    orcid: 0009-0006-2794-8995
+    affiliation: 1
   - name: Garrett Parzych
     orcid: 0009-0008-4789-9603
     affiliation: "1, 2"
   - name: Olivia M. Smith
     orcid: 0009-0004-2299-3522
     affiliation: "1, 3"
-  - name: Devansh Vimal
-    orcid: 0009-0006-2794-8995
-    affiliation: 1
+  - name: Devendra Parkar
+    orcid: 0009-0009-0133-8875
+    affiliation: "1, 2"
+  - name: Sean Bergen
+    orcid: 0009-0004-3570-5120
+    affiliation: "1, 2"
   - name: Joshua J. Daymude
     orcid: 0000-0001-7294-5626
     affiliation: "1, 2"
