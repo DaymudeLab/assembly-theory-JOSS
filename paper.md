@@ -188,13 +188,13 @@ Both suites are backed by curated reference datasets representing different clas
 - `gdb13_1201`: 1,201 small, organic molecular structures sampled from GDB-13, a database of enumerated chemical structures containing Carbon, Hydrogen, Nitrogen, Oxygen, Sulfur, and Chlorine that are constrained only by valence rules and quantum mechanics but may not be chemically stable or synthesizable [@Reymond2015-chemicalspace].
 Our sample includes all 201 molecules in GDB-13 with 4&ndash;5 heavy atoms and 200 randomly sampled molecules for each number of heavy atoms from 6&ndash;10.
 These molecules' MA range from 2&ndash;9.
-- `gdb17_800`: 800 organic molecular structures sampled from the larger GDB-17 database, which includes additional nuclei beyond GDB-13 such as the halogens Flourine and Iodine [@Reymond2015-chemicalspace].
+- `gdb17_800`: 800 organic molecular structures sampled from the larger GDB-17 database, which includes additional nuclei beyond GDB-13 such as the halogens Flourine and Iodine [@Ruddigkeit2019-enumeration].
 Compared to GDB-13, these molecules are typically larger and represent more structural diversity.
 Our sample includes 200 randomly sampled molecules for each number of heavy atoms from 14&ndash;17.
 These molecules' MA range from 5&ndash;15.
 - `checks`: 15 named molecules (e.g., anthracene, aspirin, caffeine, morphine) primarily used for rapid testing.
 These molecules' number of heavy atoms range from 5&ndash;28 and have MA from 3&ndash;18.
-- `coconut_220`: 220 natural products sampled from the COCONUT database [@Sorokina2021-coconutonline].
+- `coconut_220`: 220 natural products sampled from the COCONUT database [@Sorokina2021-coconutonline], accessed in late 2024, prior to COCONUT 2.0 [@Chandrasekhar2025-coconut].
 Natural products (or secondary metabolites) are a rich source of evolved chemical complexity, often exhibiting drug-like properties.
 Subsets of this database were used to benchmark recent algorithmic progress in [@Seet2024-rapidcomputation]. 
 Our sample includes 20 randomly sampled molecules for each number of heavy atoms from 15&ndash;25.
@@ -222,13 +222,15 @@ The benchmark times the MA calculation of all molecules in a given dataset in se
 `AssemblyGo` uses its default parameters while `ORCA` tests each of its algorithm variants independently.
 Each benchmark was run on a Linux machine with a 5.7 GHz Ryzen 9 7950X CPU (16 cores) and 64 GB of memory.
 Means are reported over 20 samples per software&ndash;dataset pair, except those marked with an $\ast$ which were prohibitively expensive to run multiple times.
+The `naive` approach was not computed on the `coconut_220` dataset as the search space was prohibitively large, leading to an overflow error.
+This behavior is documented in the source repository. 
 
 |               | `AssemblyGo`  | `ORCA`-naive  | `ORCA`-logbound | `ORCA`-intbound | `ORCA`-allbounds     |
 | --------- | --------: | --------: | -----------: | -----------: | -----------: | 
 | `gdb13_1201`  |       1.048 s |       0.118 s |         0.117 s |         0.110 s |          **0.109 s** |
 | `gdb17_800`   |     128.396 s |       7.041 s |         5.644 s |         4.476 s |          **4.331 s** |
 | `checks`      |     296.584 s |      13.964 s |         2.787 s |         2.191 s |          **2.001 s** |
-| `coconut_220` | 6.09 h$^\ast$ |   TODO$^\ast$ |     TODO$^\ast$ |        30.123 s |         **22.911 s** |
+| `coconut_220` | 6.09 h$^\ast$ |   --          |     TODO$^\ast$ |        30.123 s |         **22.911 s** |
 
 If finer-grained timing insights are needed, `ORCA` can also benchmark assembly index calculations for each individual molecule in a reference dataset.
 For example, \autoref{fig:timescatter} shows the calculation time of each molecule in `gdb17_800` for three different algorithm settings.
