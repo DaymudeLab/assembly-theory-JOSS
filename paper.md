@@ -1,5 +1,5 @@
 ---
-title: 'ORCA: Open, Reproducible Calculation of Assembly Indices'
+title: ' `assembly-theory`: Open, Reproducible Calculation of Assembly Indices'
 tags:
   - assembly theory
   - biochemistry
@@ -41,9 +41,9 @@ bibliography: paper.bib
 
 # Summary
 
-We present `ORCA` (**O**pen, **R**eproducible **C**omputation of **A**ssembly Indices), a Rust package for computing *assembly indices* of covalently bonded molecular structures.
+We present `assembly-theory`, a Rust package for computing *assembly indices* of covalently bonded molecular structures.
 This is a key complexity measure of *assembly theory*, a recent theoretical framework qunatifying selection across diverse systems, most importantly chemistry [@Walker2024-experimentallymeasured; @Sharma2023-assemblytheory].
-`ORCA` is designed for researchers and practitioners alike, providing (i) extensible, high-performance implementations of assembly index calculation algorithms, (ii) comprehensive benchmarks against which current and future algorithmic improvements can be tested, and (iii) Python bindings and `RDKit`-compatible data loaders to support integration with existing computational pipelines.
+`assembly-theory` is designed for researchers and practitioners alike, providing (i) extensible, high-performance implementations of assembly index calculation algorithms, (ii) comprehensive benchmarks against which current and future algorithmic improvements can be tested, and (iii) Python bindings and `RDKit`-compatible data loaders to support integration with existing computational pipelines.
 
 
 
@@ -70,7 +70,7 @@ Machine learning methods only provide approximate MA values [@Gebhard2022-inferr
 The more recent `AssemblyGo` implementation computes MA exactly but is written in Go, yielding worse performance and posing an accessibility barrier for most scientists who are unfamiliar with the language [@Jirasek2024-investigatingquantifying].
 Finally, the latest `AssemblyCPP` implementation has achieved significant performance milestones through a branch-and-bound approach. It is again written in C++ but is not available for public use, prohibiting its use and verification by the community [@Seet2024-rapidcomputation].
 
-With `ORCA`, we provide a high-performance, cross-platform Rust package for fast MA calculation while also providing Python bindings for key functionality, offering the best efficiency without sacrificing accessibility.
+With `assembly-theory`, we provide a high-performance, cross-platform Rust package for fast MA calculation while also providing Python bindings for key functionality, offering the best efficiency without sacrificing accessibility.
 We chose Rust for its advantages of cross-platform support, memory-safety, performant runtime, convenient parallelism, and integrated testing and documentation [@Perkel2020-whyscientists].
 By including test and benchmark suites, we also lay a foundation for fair, reproducible comparisons of future algorithmic improvements and new techniques.
 
@@ -78,22 +78,22 @@ By including test and benchmark suites, we also lay a foundation for fair, repro
 
 # Design and Current Algorithms
 
-`ORCA` is not a single algorithmic implementation of assembly index calculations; rather, it is a framework and source of ground truth within which a diversity of algorithmic approaches can be validated and compared.
-We purposely designed `ORCA` with a modular algorithm interface and data structures that can be easily extended to handle new algorithmic developments introduced as AT matures.
+`assembly-theory` is not a single algorithmic implementation of assembly index calculations; rather, it is a framework and source of ground truth within which a diversity of algorithmic approaches can be validated and compared.
+We purposely designed `assembly-theory` with a modular algorithm interface and data structures that can be easily extended to handle new algorithmic developments introduced as AT matures.
 
-Currently, `ORCA` implements several top-down, branch-and-bound algorithm variants in which a molecule is recursively fragmented and the MA of smaller fragments are used to determine the MA of their parents [@Marshall2021-identifyingmolecules; @Jirasek2024-investigatingquantifying; @Seet2024-rapidcomputation].
-We briefly summarize these algorithms below, but emphasize that `ORCA` is not limited to this top-down, recursive approach.
+Currently, `assembly-theory` implements several top-down, branch-and-bound algorithm variants in which a molecule is recursively fragmented and the MA of smaller fragments are used to determine the MA of their parents [@Marshall2021-identifyingmolecules; @Jirasek2024-investigatingquantifying; @Seet2024-rapidcomputation].
+We briefly summarize these algorithms below, but emphasize that `assembly-theory` is not limited to this top-down, recursive approach.
 
-- `ORCA`-naive fully enumerates and searches all non-duplicate assembly pathways in an efficient order.
-- `ORCA`-logbound improves over the naive method by eliminating any assembly pathways longer than $\log_2b$, where $b$ is the molecule's number of bonds [@Jirasek2024-investigatingquantifying].
-- `ORCA`-intbound improves over the logarithmic bound by eliminating any assembly pathways longer than a bound provided by an integer addition chain [@Seet2024-rapidcomputation].
-- `ORCA`-allbounds simultaneously applies the previous integer addition chain bound and a novel bound provided by a vector addition chain.
+- `assembly-theory`-naive fully enumerates and searches all non-duplicate assembly pathways in an efficient order.
+- `assembly-theory`-logbound improves over the naive method by eliminating any assembly pathways longer than $\log_2b$, where $b$ is the molecule's number of bonds [@Jirasek2024-investigatingquantifying].
+- `assembly-theory`-intbound improves over the logarithmic bound by eliminating any assembly pathways longer than a bound provided by an integer addition chain [@Seet2024-rapidcomputation].
+- `assembly-theory`-allbounds simultaneously applies the previous integer addition chain bound and a novel bound provided by a vector addition chain.
 
 
 
 # Functionality and Usage Examples
 
-`ORCA` can be used to compute assembly indices as a standalone executable, as a library imported by other Rust code, or via a Python interface.
+`assembly-theory` can be used to compute assembly indices as a standalone executable, as a library imported by other Rust code, or via a Python interface.
 Here, we provide usage examples of each; in the next section, we demonstrate testing and benchmarking functionality.
 
 
@@ -106,44 +106,44 @@ To build the standalone executable, run:
 cargo build --release
 ```
 
-This creates an optimized, portable, standalone executable named `target/release/orca`.
+This creates an optimized, portable, standalone executable named `target/release/assembly-theory`.
 It takes as input a path to a `.mol` file and returns that molecule's integer assembly index:
 
 ```shell
-> ./target/release/orca data/checks/anthracene.mol
+> ./target/release/assembly-theory data/checks/anthracene.mol
 6
 ```
 
 Running with the `--verbose` flag provides additional information, including the input molecule's *number of disjoint, isomorphic subgraph pairs* (i.e., the number of times any molecular substructure is repeated inside the molecule) and the size of the top-down algorithm's *search space* (i.e., its total number of recursive calls).
 
 ```shell
-> ./target/release/orca data/checks/anthracene.mol --verbose
+> ./target/release/assembly-theory data/checks/anthracene.mol --verbose
 Assembly Index: 6
 Duplicate subgraph pairs: 406
 Search Space: 3143
 ```
 
-By default, `ORCA` uses its fastest algorithm for assembly index calculation (currently `ORCA`-allbounds, see the previous section).
+By default, `assembly-theory` uses its fastest algorithm for assembly index calculation (currently `assembly-theory`-allbounds, see the previous section).
 To use a specific bound or disable bounds altogether, set the `--bounds` or `--no-bounds` flags:
 
 ```shell
-# ORCA-naive, no bounds
-./target/release/orca <molpath> --no-bounds
+# naive, no bounds
+./target/release/assembly-theory <molpath> --no-bounds
 
-# ORCA-logbound, only logarithmic bound (Jirasek et al., 2024)
-./target/release/orca <molpath> --bounds log
+# logbound, only logarithmic bound (Jirasek et al., 2024)
+./target/release/assembly-theory <molpath> --bounds log
 
-# ORCA-intbound, only integer addition chain bound (Seet et al., 2024)
-./target/release/orca <molpath> --bounds int-chain
+# intbound, only integer addition chain bound (Seet et al., 2024)
+./target/release/assembly-theory <molpath> --bounds int-chain
 
-# ORCA-allbounds, both integer and vector addition chain bounds
-./target/release/orca <molpath> --bounds int-chain vec-chain
+# allbounds, both integer and vector addition chain bounds
+./target/release/assembly-theory <molpath> --bounds int-chain vec-chain
 ```
 
-Finally, the `--molecule-info` flag prints the molecule's graph representation as a vertex and edge list, the `--help` flag prints a guide to this command line interface, and the `--version` flag prints the current `ORCA` version.
+Finally, the `--molecule-info` flag prints the molecule's graph representation as a vertex and edge list, the `--help` flag prints a guide to this command line interface, and the `--version` flag prints the current `assembly-theory` version.
 
 
-## Installing and using PyORCA
+## Installing and using the Python library
 
 The python library uses `maturin` as a build tool. This needs to be run in a virtual environment. Use the following commands to build and install the library:
 ```shell
@@ -151,19 +151,19 @@ pip install maturin
 maturin develop
 ```
 
-PyORCA computes the assembly index of molecules using RDKit's `Mol` class. Here's a basic example:
+This library computes the assembly index of molecules using RDKit's `Mol` class. Here's a basic example:
 
 ```python
-import pyorca
+import assembly_theory as at
 from rdkit import Chem
 
 anthracene = Chem.MolFromSmiles("c1ccc2cc3ccccc3cc2c1")
-pyorca.molecular_assembly(anthracene)  # 6
+at.molecular_assembly(anthracene)  # 6
 ```
 
 ## Core Functions  
 
-`pyorca` provides three main functions:
+The python library provides three main functions:
 
 - **`molecular_assembly(mol: Chem.Mol, bounds: set[str] = None, no_bounds: bool = False, timeout: int = None, serial: bool = False) -> int`**  
   Computes the assembly index of a given molecule.
@@ -182,7 +182,7 @@ pyorca.molecular_assembly(anthracene)  # 6
 
 # Tests and Benchmarks
 
-`ORCA` includes test and benchmark suites for software validation and performance evaluation, respectively.
+`assembly-theory` includes test and benchmark suites for software validation and performance evaluation, respectively.
 Both suites are backed by curated reference datasets representing different classes of molecules, arranged roughly in order of increasing molecular size and complexity:
 
 - `gdb13_1201`: 1,201 small, organic molecular structures sampled from GDB-13, a database of enumerated chemical structures containing Carbon, Hydrogen, Nitrogen, Oxygen, Sulfur, and Chlorine that are constrained only by valence rules and quantum mechanics but may not be chemically stable or synthesizable [@Reymond2015-chemicalspace].
@@ -204,46 +204,46 @@ Ground truth MA values were calculated using the publicly avaiable `AssemblyGo` 
 We curated these reference datasets for their structural diversity and approachable runtime on commodity hardware.
 Larger, more demanding datasets will be easily added as needed.
 
-The `ORCA` test suite contains unit tests validating internal functionality and database tests checking the calculation of correct assembly indices for all molecules in any of our reference datasets.
+The `assembly-theory` test suite contains unit tests validating internal functionality and database tests checking the calculation of correct assembly indices for all molecules in any of our reference datasets.
 Each reference dataset contains an `ma-index.csv` file with ground truth assembly indices.
 Incorrect calculations are flagged for developer review.
 
-Our benchmark suite evaluates `ORCA` performance by running repeated assembly index calculations over individual molecules or entire reference datasets.
+Our benchmark suite evaluates `assembly-theory` performance by running repeated assembly index calculations over individual molecules or entire reference datasets.
 We leverage the `criterion` package for Rust to automatically collect detailed timing statistics, charts, and estimates of performance improvements and regressions.
-As an example, \autoref{tab:benchtimes} shows `ORCA` performance across our three reference datasets against that of `AssemblyGo` [@Jirasek2024-investigatingquantifying], another recent implementation written in Go.
-Depending on the dataset and choice of `ORCA` algorithm, `ORCA` outperforms `AssemblyGo` by one to three orders of magnitude.
-The 8.9&ndash;**TODO**x speedup of `ORCA`-logbound over `AssemblyGo` most clearly represents the efficiency of Rust over Go, since both use the same branch-and-bound approach with a logarithmic bound.
+As an example, \autoref{tab:benchtimes} shows `assembly-theory` performance across our three reference datasets against that of `AssemblyGo` [@Jirasek2024-investigatingquantifying], another recent implementation written in Go.
+Depending on the dataset and choice of `assembly-theory` algorithm, `assembly-theory` outperforms `AssemblyGo` by one to three orders of magnitude.
+The 8.9&ndash;**TODO**x speedup of `assembly-theory`-logbound over `AssemblyGo` most clearly represents the efficiency of Rust over Go, since both use the same branch-and-bound approach with a logarithmic bound.
 Further algorithmic improvements such as the integer addition chain bound [@Seet2024-rapidcomputation] and our novel vector addition chain bound yield more dramatic speedups for larger molecules, like those up to 965x for `coconut_220`.
-**TODO**: If `ORCA`-naive is slower than `AssemblyGo`, explain that here.
-This internal comparison showcases `ORCA` as a framework capable of comparing multiple algorithmic approaches on equal footing, free of differences in underlying datasets or language-specific efficiency issues.
+**TODO**: If `assembly-theory`-naive is slower than `AssemblyGo`, explain that here.
+This internal comparison showcases `assembly-theory` as a framework capable of comparing multiple algorithmic approaches on equal footing, free of differences in underlying datasets or language-specific efficiency issues.
 
-: \label{tab:benchtimes} Mean benchmark execution times for `AssemblyGo` [@Jirasek2024-investigatingquantifying] vs. `ORCA` across reference datasets.
+: \label{tab:benchtimes} Mean benchmark execution times for `AssemblyGo` [@Jirasek2024-investigatingquantifying] vs. `assembly-theory` across reference datasets.
 The benchmark times the MA calculation of all molecules in a given dataset in sequence, excluding the time required to parse and load `.mol` files into internal molecular graph representations.
-`AssemblyGo` uses its default parameters while `ORCA` tests each of its algorithm variants independently.
+`AssemblyGo` uses its default parameters while `assembly-theory` tests each of its algorithm variants independently.
 Each benchmark was run on a Linux machine with a 5.7 GHz Ryzen 9 7950X CPU (16 cores) and 64 GB of memory.
 Means are reported over 20 samples per software&ndash;dataset pair, except those marked with an $\ast$ which were prohibitively expensive to run multiple times.
-The `naive` approach was not computed on the `coconut_220` dataset as the search space was prohibitively large, leading to an overflow error.
+The `naive` approach was not computed on the `coconut_220` dataset as the search space was prohibitively large without any bounds, leading to an overflow error (note that `AssemblyGo` uses an approach similar to the `logbound`).
 This behavior is documented in the source repository. 
 
-|               | `AssemblyGo`  | `ORCA`-naive  | `ORCA`-logbound | `ORCA`-intbound | `ORCA`-allbounds     |
+|               | `AssemblyGo`  | `assembly-theory`-naive  | `assembly-theory`-logbound | `assembly-theory`-intbound | `assembly-theory`-allbounds     |
 | --------- | --------: | --------: | -----------: | -----------: | -----------: | 
 | `gdb13_1201`  |       1.048 s |       0.118 s |         0.117 s |         0.110 s |          **0.109 s** |
 | `gdb17_800`   |     128.396 s |       7.041 s |         5.644 s |         4.476 s |          **4.331 s** |
 | `checks`      |     296.584 s |      13.964 s |         2.787 s |         2.191 s |          **2.001 s** |
 | `coconut_220` | 6.09 h$^\ast$ |   --          |     TODO$^\ast$ |        30.123 s |         **22.911 s** |
 
-If finer-grained timing insights are needed, `ORCA` can also benchmark assembly index calculations for each individual molecule in a reference dataset.
+If finer-grained timing insights are needed, `assembly-theory` can also benchmark assembly index calculations for each individual molecule in a reference dataset.
 For example, \autoref{fig:timescatter} shows the calculation time of each molecule in `gdb17_800` for three different algorithm settings.
 This is useful for teasing out which molecules are "hard" and characterizing where algorithmic improvements make the largest impact.
 
-![*Per-Molecule Benchmark Times*. The mean assembly index calculation time across 100 samples for each molecule (dot) in `gdb17_800` as a function of the molecule's number of duplicate isomorphic subgraphs, a measure roughly correlated with the molecule's size and complexity. The same three `ORCA ` algorithm settings from \autoref{tab:benchtimes} are shown here.\label{fig:timescatter}](figures/jossplot.pdf){ width=75% }
+![*Per-Molecule Benchmark Times*. The mean assembly index calculation time across 100 samples for each molecule (dot) in `gdb17_800` as a function of the molecule's number of duplicate isomorphic subgraphs, a measure roughly correlated with the molecule's size and complexity. The same three `assembly-theory` algorithm settings from \autoref{tab:benchtimes} are shown here.\label{fig:timescatter}](figures/jossplot.pdf){ width=75% }
 
 
 
 # Availability and Governance
 
-`ORCA` source code and documentation are openly available on [GitHub](https://github.com/DaymudeLab/ORCA).
-Following the standard practice for Rust packages, `ORCA` is dual-licensed under the MIT and Apache-2.0 licenses.
+`assembly-theory` source code and documentation are openly available on [GitHub](https://github.com/DaymudeLab/assembly-theory).
+Following the standard practice for Rust packages, `assembly-theory` is dual-licensed under the MIT and Apache-2.0 licenses.
 External feedback and code contributions are handled through the usual Issues and Pull Request interfaces; guidelines for contributions are listed in `HACKING.md`.
 The project's *maintainers* (initially Vimal, Daymude, and Mathis) will govern the project using the committee model: high-level decisions about the project's direction require maintainer consensus, major code changes require majority approval, hotfixes and patches require at least one approval, new maintainers may be added by unanimous decision of the existing maintainers, and existing maintainers may step down with advance notice.
 
