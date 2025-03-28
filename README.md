@@ -97,7 +97,7 @@ Copy the Rust benchmark file into the appropriate submodule (if you haven't alre
 
 ```shell
 cp scripts/benchmark.rs assembly-theory/benches/
-cd ORCA
+cd assembly-theory
 ```
 
 Then run the benchmark generating the data for the plot with
