@@ -1,5 +1,5 @@
 ---
-title: ' `assembly-theory`: Open, Reproducible Calculation of Assembly Indices'
+title: 'Open, Reproducible Calculation of Assembly Indices'
 tags:
   - assembly theory
   - biochemistry
@@ -67,10 +67,11 @@ In general, exact MA calculation is an NP-hard problem [@Kempes2024-assemblytheo
 Previous software to compute MA have been approximate, closed-source, platform-dependent, or written in languages rarely used by the broader scientific community.
 For example, the original software to compute a split-branch approximation of MA (an upper bound on the exact value) was written in C++ and depended on the MSVC compiler, making it difficult to deploy to non-Windows machines [@Marshall2021-identifyingmolecules].
 Machine learning methods only provide approximate MA values [@Gebhard2022-inferringmolecular].
-The more recent `AssemblyGo` implementation computes MA exactly but is written in Go, yielding worse performance and posing an accessibility barrier for most scientists who are unfamiliar with the language [@Jirasek2024-investigatingquantifying].
-Finally, the latest `AssemblyCPP` implementation has achieved significant performance milestones through a branch-and-bound approach. It is again written in C++ but is not available for public use, prohibiting its use and verification by the community [@Seet2024-rapidcomputation].
+The more recent `assembly_go` implementation computes MA exactly but is written in Go, yielding worse performance and posing an accessibility barrier for most scientists who are unfamiliar with the language [@Jirasek2024-investigatingquantifying].
+Finally, the latest implementation achieves significant performance milestones through a branch-and-bound approach [@Seet2024-rapidcomputation].
+It is again written in C++ but is not available for public use, prohibiting its use and verification by the community.
 
-With `assembly-theory`, we provide a high-performance, cross-platform Rust package for fast MA calculation while also providing Python bindings for key functionality, offering the best efficiency without sacrificing accessibility.
+With `assembly-theory`, we provide a high-performance Rust package for MA calculation while also providing Python bindings for key functionality, offering the best efficiency without sacrificing accessibility.
 We chose Rust for its advantages of cross-platform support, memory-safety, performant runtime, convenient parallelism, and integrated testing and documentation [@Perkel2020-whyscientists].
 By including test and benchmark suites, we also lay a foundation for fair, reproducible comparisons of future algorithmic improvements and new techniques.
 
@@ -107,7 +108,7 @@ cargo build --release
 ```
 
 This creates an optimized, portable, standalone executable named `target/release/assembly-theory`.
-It takes as input a path to a `.mol` file and returns that molecule's integer assembly index:
+It takes as input a path to a `.mol` file and returns that molecule's assembly index:
 
 ```shell
 > ./target/release/assembly-theory data/checks/anthracene.mol
@@ -120,10 +121,13 @@ Running with the `--verbose` flag provides additional information, including the
 > ./target/release/assembly-theory data/checks/anthracene.mol --verbose
 Assembly Index: 6
 Duplicate subgraph pairs: 406
-Search Space: 3143
+Search Space: 2306
 ```
 
-By default, `assembly-theory` uses its fastest algorithm for assembly index calculation (currently `assembly-theory`-allbounds, see the previous section).
+By default, `assembly-theory` parallelizes its recursive search over as many threads as the OS allows.
+To disable parallelism, use the `--serial` flag.
+
+Also by default, `assembly-theory` uses its fastest algorithm for assembly index calculation (currently `assembly-theory`-allbounds, see the previous section).
 To use a specific bound or disable bounds altogether, set the `--bounds` or `--no-bounds` flags:
 
 ```shell
@@ -143,89 +147,85 @@ To use a specific bound or disable bounds altogether, set the `--bounds` or `--n
 Finally, the `--molecule-info` flag prints the molecule's graph representation as a vertex and edge list, the `--help` flag prints a guide to this command line interface, and the `--version` flag prints the current `assembly-theory` version.
 
 
-## Installing and using the Python library
+## Using the Rust Library
 
-The python library uses `maturin` as a build tool. This needs to be run in a virtual environment. Use the following commands to build and install the library:
+**TODO**: Explain obtaining the library from crates.io and show a simple usage example.
+
+
+## Building and Running the Python Interface
+
+We use [`maturin`](https://github.com/PyO3/maturin) to repackage the `assembly-theory` Rust binaries as the `assembly_theory` package for Python.
+Instructions for this build process can be found in our `README`; otherwise, the Python package can be obtained from PyPI in the usual way:
+
 ```shell
-pip install maturin
-maturin develop
+pip install assembly_theory
 ```
 
-This library computes the assembly index of molecules using RDKit's `Mol` class. Here's a basic example:
+Our Python interface is built for compatibility with `RDKit`, the standard Python library for cheminformatics [@2024-rdkitopensource].
+Molecules can be loaded and manipulated using the `rdkit.Chem.Mol` class and then passed to our functions for assembly index calculation:
 
 ```python
 import assembly_theory as at
 from rdkit import Chem
-
 anthracene = Chem.MolFromSmiles("c1ccc2cc3ccccc3cc2c1")
 at.molecular_assembly(anthracene)  # 6
 ```
 
-## Core Functions  
+In detail, `assembly_theory` exposes three main functions:
 
-The python library provides three main functions:
+1. **`molecular_assembly`**`(mol: Chem.Mol, bounds: set[str] = None, no_bounds: bool = False, timeout: int = None, serial: bool = False) -> int`
+2. **`molecular_assembly_verbose`**`(mol: Chem.Mol, bounds: set[str] = None, no_bounds: bool = False, timeout: int = None, serial: bool = False) -> dict` 
+3. **`molecule_info`**`(mol: Chem.Mol) -> str`
 
-- **`molecular_assembly(mol: Chem.Mol, bounds: set[str] = None, no_bounds: bool = False, timeout: int = None, serial: bool = False) -> int`**  
-  Computes the assembly index of a given molecule.
-  - `timeout` (in seconds) sets a limit on computation time, raising a `TimeoutError` if exceeded.  
-  - `serial=True` forces a serial execution mode, mainly useful for debugging.
-
-
-- **`molecular_assembly_verbose(mol: Chem.Mol, bounds: set[str] = None, no_bounds: bool = False, timeout: int = None, serial: bool = False) -> dict`**  
-  Returns additional details, including the number of duplicated isomorphic subgraphs (`duplicates`) and the size of the search space (`space`).  
-  - `timeout` (in seconds) sets a limit on computation time, raising a `TimeoutError` if exceeded.  
-  - `serial=True` forces a serial execution mode, mainly useful for debugging.
-
-- **`molecule_info(mol: Chem.Mol) -> str`**  
-  Returns a string representation of the molecule’s atom and bond structure for debugging.
+These correspond to running the Rust `assembly-theory` executable to obtain only an assembly index, running with the `--verbose` flag to also obtain the number of disjoint isomorphic subgraph pairs (`duplicates`) and search space size (`space`), and running with the `--molecule-info` flag to obtain molecule information, respectively.
+The `timeout` parameter is specific to the Python interface: when set to a non-`None` integer value, a `TimeoutError` is raised if assembly index calculation exceeds `timeout` seconds.
 
 
 # Tests and Benchmarks
 
 `assembly-theory` includes test and benchmark suites for software validation and performance evaluation, respectively.
-Both suites are backed by curated reference datasets representing different classes of molecules, arranged roughly in order of increasing molecular size and complexity:
+Both use curated reference datasets representing different classes of molecules, arranged roughly in order of increasing molecular size and complexity:
 
-- `gdb13_1201`: 1,201 small, organic molecular structures sampled from GDB-13, a database of enumerated chemical structures containing Carbon, Hydrogen, Nitrogen, Oxygen, Sulfur, and Chlorine that are constrained only by valence rules and quantum mechanics but may not be chemically stable or synthesizable [@Reymond2015-chemicalspace].
+- `gdb13_1201`: 1,201 small, organic molecular structures sampled from GDB-13, a database of enumerated chemical structures containing Carbon, Hydrogen, Nitrogen, Oxygen, Sulfur, and Chlorine that are constrained only by valence rules and quantum mechanics but may not be chemically stable or synthesizable [@Blum2009-970million].
 Our sample includes all 201 molecules in GDB-13 with 4&ndash;5 heavy atoms and 200 randomly sampled molecules for each number of heavy atoms from 6&ndash;10.
 These molecules' MA range from 2&ndash;9.
-- `gdb17_800`: 800 organic molecular structures sampled from the larger GDB-17 database, which includes additional nuclei beyond GDB-13 such as the halogens Flourine and Iodine [@Ruddigkeit2019-enumeration].
+- `gdb17_800`: 800 organic molecular structures sampled from the larger GDB-17 database, which includes additional nuclei beyond GDB-13 such as the halogens Flourine and Iodine [@Ruddigkeit2012-enumeration166].
 Compared to GDB-13, these molecules are typically larger and represent more structural diversity.
 Our sample includes 200 randomly sampled molecules for each number of heavy atoms from 14&ndash;17.
 These molecules' MA range from 5&ndash;15.
 - `checks`: 15 named molecules (e.g., anthracene, aspirin, caffeine, morphine) primarily used for rapid testing.
 These molecules' number of heavy atoms range from 5&ndash;28 and have MA from 3&ndash;18.
-- `coconut_220`: 220 natural products sampled from the COCONUT database [@Sorokina2021-coconutonline], accessed in late 2024, prior to COCONUT 2.0 [@Chandrasekhar2025-coconut].
+- `coconut_220`: 220 natural products sampled from the COCONUT database [@Sorokina2021-coconutonline], accessed in late 2024, prior to COCONUT 2.0 [@Chandrasekhar2025-coconut20].
 Natural products (or secondary metabolites) are a rich source of evolved chemical complexity, often exhibiting drug-like properties.
 Subsets of this database were used to benchmark recent algorithmic progress in [@Seet2024-rapidcomputation]. 
 Our sample includes 20 randomly sampled molecules for each number of heavy atoms from 15&ndash;25.
 These molecules' MA range from 5&ndash;20.
 
-Ground truth MA values were calculated using the publicly avaiable `AssemblyGo` implementation [@Jirasek2024-investigatingquantifying].
 We curated these reference datasets for their structural diversity and approachable runtime on commodity hardware.
-Larger, more demanding datasets will be easily added as needed.
+Larger, more demanding datasets will be added as needed.
 
 The `assembly-theory` test suite contains unit tests validating internal functionality and database tests checking the calculation of correct assembly indices for all molecules in any of our reference datasets.
-Each reference dataset contains an `ma-index.csv` file with ground truth assembly indices.
+Each reference dataset contains an `ma-index.csv` file with ground truth assembly indices calculated using the publicly available `assembly_go` implementation [@Jirasek2024-investigatingquantifying].
 Incorrect calculations are flagged for developer review.
 
 Our benchmark suite evaluates `assembly-theory` performance by running repeated assembly index calculations over individual molecules or entire reference datasets.
-We leverage the `criterion` package for Rust to automatically collect detailed timing statistics, charts, and estimates of performance improvements and regressions.
-As an example, \autoref{tab:benchtimes} shows `assembly-theory` performance across our three reference datasets against that of `AssemblyGo` [@Jirasek2024-investigatingquantifying], another recent implementation written in Go.
-Depending on the dataset and choice of `assembly-theory` algorithm, `assembly-theory` outperforms `AssemblyGo` by one to three orders of magnitude.
-The 8.9&ndash;**TODO**x speedup of `assembly-theory`-logbound over `AssemblyGo` most clearly represents the efficiency of Rust over Go, since both use the same branch-and-bound approach with a logarithmic bound.
+We leverage the [`criterion`](https://bheisler.github.io/criterion.rs/criterion/) package for Rust to automatically collect detailed timing statistics, charts, and estimates of performance improvements and regressions.
+As an example, \autoref{tab:benchtimes} shows `assembly-theory` performance across our three reference datasets against that of `assembly_go` [@Jirasek2024-investigatingquantifying].
+Depending on the dataset and choice of `assembly-theory` algorithm, `assembly-theory` outperforms `assembly_go` by one to three orders of magnitude.
+The 8.9&ndash;**TODO**x speedup of `assembly-theory`-logbound over `assembly_go` most clearly represents the efficiency of Rust over Go, since both use the same branch-and-bound approach with a logarithmic bound.
 Further algorithmic improvements such as the integer addition chain bound [@Seet2024-rapidcomputation] and our novel vector addition chain bound yield more dramatic speedups for larger molecules, like those up to 965x for `coconut_220`.
-**TODO**: If `assembly-theory`-naive is slower than `AssemblyGo`, explain that here.
+**TODO**: If `assembly-theory`-naive is slower than `assembly_go`, explain that here.
 This internal comparison showcases `assembly-theory` as a framework capable of comparing multiple algorithmic approaches on equal footing, free of differences in underlying datasets or language-specific efficiency issues.
 
-: \label{tab:benchtimes} Mean benchmark execution times for `AssemblyGo` [@Jirasek2024-investigatingquantifying] vs. `assembly-theory` across reference datasets.
+: \label{tab:benchtimes} Mean benchmark execution times for `assembly_go` [@Jirasek2024-investigatingquantifying] vs. `assembly-theory` across reference datasets.
 The benchmark times the MA calculation of all molecules in a given dataset in sequence, excluding the time required to parse and load `.mol` files into internal molecular graph representations.
-`AssemblyGo` uses its default parameters while `assembly-theory` tests each of its algorithm variants independently.
+`assembly_go` uses its default parameters while `assembly-theory` tests each of its algorithm variants independently.
 Each benchmark was run on a Linux machine with a 5.7 GHz Ryzen 9 7950X CPU (16 cores) and 64 GB of memory.
 Means are reported over 20 samples per software&ndash;dataset pair, except those marked with an $\ast$ which were prohibitively expensive to run multiple times.
-The `naive` approach was not computed on the `coconut_220` dataset as the search space was prohibitively large without any bounds, leading to an overflow error (note that `AssemblyGo` uses an approach similar to the `logbound`).
+The `naive` approach was not computed on the `coconut_220` dataset as the search space was prohibitively large without any bounds, leading to an overflow error (note that `assembly_go` uses an approach similar to the `logbound`).
 This behavior is documented in the source repository. 
 
-|               | `AssemblyGo`  | `assembly-theory`-naive  | `assembly-theory`-logbound | `assembly-theory`-intbound | `assembly-theory`-allbounds     |
+|               | `assembly_go`  | `assembly-theory`-naive  | `assembly-theory`-logbound | `assembly-theory`-intbound | `assembly-theory`-allbounds     |
 | --------- | --------: | --------: | -----------: | -----------: | -----------: | 
 | `gdb13_1201`  |       1.048 s |       0.118 s |         0.117 s |         0.110 s |          **0.109 s** |
 | `gdb17_800`   |     128.396 s |       7.041 s |         5.644 s |         4.476 s |          **4.331 s** |
@@ -258,7 +258,7 @@ GP implemented all bound calculations.
 DP and DV implemented the `.mol` file parser and dataset-based benchmarks.
 CM implemented the Python interface.
 OMS curated all reference datasets and assembly index ground truths with input from CM.
-SB and JJD wrote the `AssemblyGo` benchmarks.
+SB and JJD wrote the `assembly_go` benchmarks.
 JJD conducted and analyzed the benchmarks shown in \autoref{tab:benchtimes}.
 DP, SB, GP, and JJD produced \autoref{fig:timescatter}.
 JJD and CM wrote the paper.
