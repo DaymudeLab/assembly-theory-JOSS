@@ -1,6 +1,6 @@
-# ORCA-JOSS
+# assembly-theory-JOSS
 
-This repository contains the source files for our [Journal of Open Source Science](https://joss.theoj.org/) manuscript on `ORCA`: Open, Reproducible Calculation of Assembly Indices (see the [GitHub repository](https://github.com/DaymudeLab/ORCA)).
+This repository contains the source files for our [Journal of Open Source Science](https://joss.theoj.org/) manuscript on Open, Reproducible Calculation of Assembly Indices (see the [GitHub repository](https://github.com/DaymudeLab/assembly-theory)).
 This is a collaboration in the Biodesign Center for Biocomputing, Security and Society at Arizona State University involving&mdash;in alphabetical order by last name, with PIs at the end&mdash;Sean Bergen, Devendra Parkar, Garrett Parzych, Olivia Smith, Devansh Vimal, Joshua J. Daymude, and Cole Mathis.
 
 
@@ -27,8 +27,8 @@ uv sync
 
 ## Benchmarking Method and Instructions for Reproduction
 
-This paper includes a small benchmark of our `ORCA` assembly index calculations against those of [`assembly_go`](https://github.com/croningp/assembly_go), an earlier implementation written in Go ([Jirasek et al., 2024](https://doi.org/10.1021/acscentsci.4c00120)).
-For the purposes of reproducibilty, this repository includes the versions of `ORCA` and `assembly_go` that we benchmarked as submodules.
+This paper includes a small benchmark of our assembly index calculations against those of [`assembly_go`](https://github.com/croningp/assembly_go), an earlier implementation written in Go ([Jirasek et al., 2024](https://doi.org/10.1021/acscentsci.4c00120)).
+For the purposes of reproducibilty, this repository includes the versions of `assembly-theory` and `assembly_go` that we benchmarked as submodules.
 The benchmarks measure only the runtime required to compute assembly pathways and indices, but exclude all setup and teardown (e.g., loading `.mol` files into internal molecule/graph representations).
 The molecule datasets used for benchmarking are described in `paper.md`.
 
@@ -36,13 +36,13 @@ The molecule datasets used for benchmarking are described in `paper.md`.
 > Some of these benchmarks take a long time to run, especially when averaging over many samples on large reference datasets.
 
 
-### Benchmarking `ORCA`
+### Benchmarking `assembly-theory`
 
-Set up the `ORCA` benchmark by copying the Rust benchmark file into the appropriate submodule and then going to the corresponding directory:
+Set up the `assembly-theory` benchmark by copying the Rust benchmark file into the appropriate submodule and then going to the corresponding directory:
 
 ```shell
-cp scripts/benchmark.rs ORCA/benches/
-cd ORCA
+cp scripts/benchmark.rs assembly-theory/benches/
+cd assembly-theory
 ```
 
 Then run the benchmark with
@@ -52,7 +52,7 @@ cargo bench datasets
 ```
 
 > [!NOTE]
-> This benchmark skips `ORCA`-naive and `ORCA`-logbound on the `coconut_220` dataset as these runs are prohibitively slow.
+> This benchmark skips `assembly-theory`-naive and `assembly-theory`-logbound on the `coconut_220` dataset as these runs are prohibitively slow.
 > To obtain these algorithms' benchmark times, we manually modified the benchmark to run just once, killing the process at the 24 hour mark.
 
 
@@ -79,7 +79,7 @@ The benchmark for `assembly_go` on `coconut_220` is very slow, so we only ran th
 
 ### Getting Benchmark Results
 
-From this `ORCA-JOSS` directory, run the following to get the benchmark statistics.
+From this directory, run the following to get the benchmark statistics.
 
 ```
 uv run scripts/bench_stats.py
@@ -88,16 +88,16 @@ uv run scripts/bench_stats.py
 This script reports the mean benchmark time and 95% confidence interval of the mean for each algorithm&ndash;dataset pair.
 
 
-## Generating Plots for `ORCA`
+## Generating Plots for `assembly-theory`
 
-Our manuscript includes a scatterplot of molecules' numbers of disjoint isomorphic subgraph pairs (a rough estimate of their complexity) vs. their mean `ORCA` assembly index calculation times for different algorithms.
+Our manuscript includes a scatterplot of molecules' numbers of disjoint isomorphic subgraph pairs (a rough estimate of their complexity) vs. their mean `assembly-theory` assembly index calculation times for different algorithms.
 Instructions for reproducing that figure on your own hardware are below.
 
 Copy the Rust benchmark file into the appropriate submodule (if you haven't already) and then go to the corresponding directory:
 
 ```shell
-cp scripts/benchmark.rs ORCA/benches/
-cd ORCA
+cp scripts/benchmark.rs assembly-theory/benches/
+cd assembly-theory
 ```
 
 Then run the benchmark generating the data for the plot with
