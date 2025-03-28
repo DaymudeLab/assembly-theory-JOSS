@@ -1,6 +1,6 @@
 """
-jossplot: Plot molecules' number of duplicate isomorphic subgraphs vs. their
-          average ORCA assembly index calculation time
+jossplot: Plot molecules' number of disjoint isomorphic subgraph pairs vs.
+          their average assembly-theory assembly index calculation time
 """
 
 import argparse
@@ -15,7 +15,7 @@ import pandas as pd
 if __name__ == "__main__":
     # Parse command line arguments.
     parser = argparse.ArgumentParser(description=__doc__)
-    def_crit_path = osp.join("ORCA", "target", "criterion", "jossplot")
+    def_crit_path = osp.join("assembly-theory", "target", "criterion", "jossplot")
     parser.add_argument('-C', '--crit_path', type=str, default=def_crit_path,
                         help='Path to jossplot criterion output directory')
     parser.add_argument('-F', '--figs_path', type=str, default='figures',
@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     # Load assembly index calculation times per molecule per bound option.
     mol_dfs = {}
-    for bound in ["naive", "logbound", "addbound", "allbounds"]:
+    for bound in ["naive", "logbound", "intbound", "allbounds"]:
         # Set up results dict to turn into a DataFrame.
         results = {"mol_name": [], "iso_sub_pairs": [], "time": []}
 
@@ -61,11 +61,11 @@ if __name__ == "__main__":
                s=3, color=cmc.batlow(0.2), label="Naive")
     ax.scatter("iso_sub_pairs", "time", data=mol_dfs["logbound"],
                s=3, color=cmc.batlow(0.4), label="Log. Bound")
-    ax.scatter("iso_sub_pairs", "time", data=mol_dfs["addbound"],
+    ax.scatter("iso_sub_pairs", "time", data=mol_dfs["intbound"],
                s=3, color=cmc.batlow(0.6), label="Int. Add. Bound")
     ax.scatter("iso_sub_pairs", "time", data=mol_dfs["allbounds"],
                s=3, color=cmc.batlow(0.8), label="Vec. & Int. Add. Bounds")
     ax.set(xlabel="# Disjoint Isomorphic Subgraph Pairs", yscale='log',
-           ylabel="ORCA Assembly Index Calculation Time (seconds, log scale)")
+           ylabel="Assembly Index Calculation Time (seconds, log scale)")
     ax.legend(loc='best', fontsize='small')
     fig.savefig(osp.join(args.figs_path, "jossplot.pdf"))

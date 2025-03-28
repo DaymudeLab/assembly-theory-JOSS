@@ -233,10 +233,10 @@ This behavior is documented in the source repository.
 | `coconut_220` | 6.09 h$^\ast$ |   --          |     TODO$^\ast$ |        30.123 s |         **22.911 s** |
 
 If finer-grained timing insights are needed, `assembly-theory` can also benchmark assembly index calculations for each individual molecule in a reference dataset.
-For example, \autoref{fig:timescatter} shows the calculation time of each molecule in `gdb17_800` for three different algorithm settings.
+For example, \autoref{fig:timescatter} shows the calculation time of each molecule in `gdb17_800` for four different algorithm settings.
 This is useful for teasing out which molecules are "hard" and characterizing where algorithmic improvements make the largest impact.
 
-![*Per-Molecule Benchmark Times*. The mean assembly index calculation time across 100 samples for each molecule (dot) in `gdb17_800` as a function of the molecule's number of duplicate isomorphic subgraphs, a measure roughly correlated with the molecule's size and complexity. The same three `assembly-theory` algorithm settings from \autoref{tab:benchtimes} are shown here.\label{fig:timescatter}](figures/jossplot.pdf){ width=75% }
+![*Per-Molecule Benchmark Times*. The mean assembly index calculation time across 20 samples for each molecule (dot) in `gdb17_800` as a function of the molecule's number of duplicate isomorphic subgraphs, a measure roughly correlated with the molecule's size and complexity. The same four `assembly-theory` algorithm settings from \autoref{tab:benchtimes} are shown here.\label{fig:timescatter}](figures/jossplot.pdf){ width=75% }
 
 
 
