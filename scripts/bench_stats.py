@@ -17,14 +17,14 @@ if __name__ == "__main__":
     def_ago_path = osp.join('assembly_go', 'cmd', 'app', 'datasets_bench.tsv')
     parser.add_argument('-A', '--ago_path', type=str, default=def_ago_path,
                         help='Path to assembly_go benchmark output')
-    def_crit_path = osp.join('ORCA', 'target', 'criterion', 'datasets')
+    def_crit_path = osp.join('assembly-theory', 'target', 'criterion', 'datasets')
     parser.add_argument('-C', '--crit_path', type=str, default=def_crit_path,
                         help='Path to criterion datasets benchmark output')
     args = parser.parse_args()
 
     # Define fixed constants.
     datasets = ['gdb13_1201', 'gdb17_800', 'checks', 'coconut_220']
-    orca_algs = ['naive', 'logbound', 'addbound', 'allbounds']
+    at_algs = ['naive', 'logbound', 'intbound', 'allbounds']
 
     # Create results dict of the form {algo: {dataset: (mean, 95% conf.)}}.
     results = defaultdict(dict)
@@ -50,20 +50,20 @@ if __name__ == "__main__":
         conf_perc = (conf[1] - conf[0]) / 2 / mean_time * 100
         results['assembly_go'][dataset] = (mean_time, conf_perc)
 
-    # Do the same for ORCA's three algorithm variants.
-    for dataset, orca_alg in product(datasets, orca_algs):
+    # Do the same for assembly-theory's three algorithm variants.
+    for dataset, at_alg in product(datasets, at_algs):
         # Skip very slow benchmarks that we don't do multiple samples for.
-        if dataset == 'coconut_220' and orca_alg in ['naive', 'logbound']:
+        if dataset == 'coconut_220' and at_alg in ['naive', 'logbound']:
             continue
 
-        with open(osp.join(args.crit_path, dataset, orca_alg, 'new',
+        with open(osp.join(args.crit_path, dataset, at_alg, 'new',
                            'estimates.json'), 'r') as f:
             stats = json.load(f)
             mean_time = stats['mean']['point_estimate']
             conf_low = stats['mean']['confidence_interval']['lower_bound']
             conf_high = stats['mean']['confidence_interval']['upper_bound']
             conf_perc = (conf_high - conf_low) / 2 / mean_time * 100
-            results[f'orca-{orca_alg}'][dataset] = (mean_time, conf_perc)
+            results[f'at-{at_alg}'][dataset] = (mean_time, conf_perc)
 
     # Print results.
     results_df = pd.DataFrame(results)

@@ -5,7 +5,11 @@ use std::fs;
 use std::iter::zip;
 use std::path::Path;
 
-use orca::{molecule::Molecule, loader, assembly::{index_search, Bound}};
+use assembly_theory::{
+    molecule::Molecule,
+    loader,
+    assembly::{index_search, Bound}
+};
 
 pub fn dataset_bench(c: &mut Criterion) {
     // Define a new criterion benchmark group of dataset benchmarks.
@@ -67,7 +71,7 @@ pub fn jossplot_bench(c: &mut Criterion) {
     let mut group = c.benchmark_group("jossplot");
 
     // Define datasets, bounds, and labels.
-    let datasets = ["gdb13_1201", "gdb17_800", "checks", "coconut_220"];
+    let datasets = ["gdb17_800"];
     let bounds = [vec![],
                   vec![Bound::Log],
                   vec![Bound::IntChain],
