@@ -1,7 +1,7 @@
 [project]
-name = "orca-joss"
+name = "assembly-theory-joss"
 version = "0.1.0"
-description = "Data parsing and plotting scripts for the ORCA-JOSS manuscript"
+description = "Data parsing and plotting scripts for the assembly-theory-JOSS manuscript"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [

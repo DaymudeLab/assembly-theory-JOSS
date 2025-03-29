@@ -58,13 +58,13 @@ if __name__ == "__main__":
     # assembly index calculation time as a scatter plot.
     fig, ax = plt.subplots(dpi=300, facecolor='w', tight_layout=True)
     ax.scatter("iso_sub_pairs", "time", data=mol_dfs["naive"],
-               s=3, color=cmc.batlow(0.2), label="Naive")
+               s=3, color=cmc.batlow(0.2), label="bb-naive")
     ax.scatter("iso_sub_pairs", "time", data=mol_dfs["logbound"],
-               s=3, color=cmc.batlow(0.4), label="Log. Bound")
+               s=3, color=cmc.batlow(0.4), label="bb-logbound")
     ax.scatter("iso_sub_pairs", "time", data=mol_dfs["intbound"],
-               s=3, color=cmc.batlow(0.6), label="Int. Add. Bound")
+               s=3, color=cmc.batlow(0.6), label="bb-intbound")
     ax.scatter("iso_sub_pairs", "time", data=mol_dfs["allbounds"],
-               s=3, color=cmc.batlow(0.8), label="Vec. & Int. Add. Bounds")
+               s=3, color=cmc.batlow(0.8), label="bb-allbounds")
     ax.set(xlabel="# Disjoint Isomorphic Subgraph Pairs", yscale='log',
            ylabel="Assembly Index Calculation Time (seconds, log scale)")
     ax.legend(loc='best', fontsize='small')

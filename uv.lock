@@ -1,5 +1,25 @@
 version = 1
+revision = 1
 requires-python = ">=3.13"
+
+[[package]]
+name = "assembly-theory-joss"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "cmcrameri" },
+    { name = "matplotlib" },
+    { name = "pandas" },
+    { name = "scipy" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "cmcrameri", specifier = ">=1.9" },
+    { name = "matplotlib", specifier = ">=3.10.0" },
+    { name = "pandas", specifier = ">=2.2.3" },
+    { name = "scipy", specifier = ">=1.15.1" },
+]
 
 [[package]]
 name = "cmcrameri"
@@ -165,25 +185,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/aa/29/14a177f1a90b8ad8a592ca32124ac06af5eff32889874e53a308f850290f/numpy-2.2.2-cp313-cp313t-musllinux_1_2_x86_64.whl", hash = "sha256:106397dbbb1896f99e044efc90360d098b3335060375c26aa89c0d8a97c5f648", size = 17856316 },
     { url = "https://files.pythonhosted.org/packages/95/03/242ae8d7b97f4e0e4ab8dd51231465fb23ed5e802680d629149722e3faf1/numpy-2.2.2-cp313-cp313t-win32.whl", hash = "sha256:0eec19f8af947a61e968d5429f0bd92fec46d92b0008d0a6685b40d6adf8a4f4", size = 6329134 },
     { url = "https://files.pythonhosted.org/packages/80/94/cd9e9b04012c015cb6320ab3bf43bc615e248dddfeb163728e800a5d96f0/numpy-2.2.2-cp313-cp313t-win_amd64.whl", hash = "sha256:97b974d3ba0fb4612b77ed35d7627490e8e3dff56ab41454d9e8b23448940576", size = 12696208 },
-]
-
-[[package]]
-name = "orca-joss"
-version = "0.1.0"
-source = { virtual = "." }
-dependencies = [
-    { name = "cmcrameri" },
-    { name = "matplotlib" },
-    { name = "pandas" },
-    { name = "scipy" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "cmcrameri", specifier = ">=1.9" },
-    { name = "matplotlib", specifier = ">=3.10.0" },
-    { name = "pandas", specifier = ">=2.2.3" },
-    { name = "scipy", specifier = ">=1.15.1" },
 ]
 
 [[package]]

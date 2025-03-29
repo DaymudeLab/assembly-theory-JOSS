@@ -82,13 +82,13 @@ By including test and benchmark suites, we also lay a foundation for fair, repro
 `assembly-theory` is not a single algorithmic implementation of assembly index calculations; rather, it is a framework and source of ground truth within which a diversity of algorithmic approaches can be validated and compared.
 We purposely designed `assembly-theory` with a modular algorithm interface and data structures that can be easily extended to handle new algorithmic developments introduced as AT matures.
 
-Currently, `assembly-theory` implements several top-down, branch-and-bound algorithm variants in which a molecule is recursively fragmented and the MA of smaller fragments are used to determine the MA of their parents [@Marshall2021-identifyingmolecules; @Jirasek2024-investigatingquantifying; @Seet2024-rapidcomputation].
+Currently, `assembly-theory` implements several top-down, branch-and-bound ("`bb`") algorithm variants in which a molecule is recursively fragmented and the MA of smaller fragments are used to determine the MA of their parents [@Marshall2021-identifyingmolecules; @Jirasek2024-investigatingquantifying; @Seet2024-rapidcomputation].
 We briefly summarize these algorithms below, but emphasize that `assembly-theory` is not limited to this top-down, recursive approach.
 
-- `assembly-theory`-naive fully enumerates and searches all non-duplicate assembly pathways in an efficient order.
-- `assembly-theory`-logbound improves over the naive method by eliminating any assembly pathways longer than $\log_2b$, where $b$ is the molecule's number of bonds [@Jirasek2024-investigatingquantifying].
-- `assembly-theory`-intbound improves over the logarithmic bound by eliminating any assembly pathways longer than a bound provided by an integer addition chain [@Seet2024-rapidcomputation].
-- `assembly-theory`-allbounds simultaneously applies the previous integer addition chain bound and a novel bound provided by a vector addition chain.
+- `bb-naive` fully enumerates all non-duplicate assembly pathways in an efficient order.
+- `bb-logbound` improves over the naive method by eliminating any assembly pathways longer than $\log_2b$, where $b$ is the molecule's number of bonds [@Jirasek2024-investigatingquantifying].
+- `bb-intbound` improves over the logarithmic bound by eliminating any assembly pathways longer than a bound provided by an integer addition chain [@Seet2024-rapidcomputation].
+- `bb-allbounds` simultaneously applies the previous integer addition chain bound and a novel bound provided by a vector addition chain.
 
 
 
@@ -98,27 +98,26 @@ We briefly summarize these algorithms below, but emphasize that `assembly-theory
 Here, we provide usage examples of each; in the next section, we demonstrate testing and benchmarking functionality.
 
 
-## Building and Running the Executable
+## Standalone Executable
 
-Rust provides the `cargo` build system and package manager for dependency management, compilation, packaging, and versioning.
-To build the standalone executable, run:
+Rust provides the `cargo` build system and package manager for dependency management, compilation, packaging, and versioning and the [crates.io](https://crates.io/crates/assembly-theory) registry for package distribution.
+To install the standalone executable, run:
 
 ```shell
-cargo build --release
+cargo install assembly-theory
 ```
 
-This creates an optimized, portable, standalone executable named `target/release/assembly-theory`.
-It takes as input a path to a `.mol` file and returns that molecule's assembly index:
+This executable takes as input a path to a `.mol` file and returns that molecule's assembly index:
 
 ```shell
-> ./target/release/assembly-theory data/checks/anthracene.mol
+> assembly-theory data/checks/anthracene.mol
 6
 ```
 
 Running with the `--verbose` flag provides additional information, including the input molecule's *number of disjoint, isomorphic subgraph pairs* (i.e., the number of times any molecular substructure is repeated inside the molecule) and the size of the top-down algorithm's *search space* (i.e., its total number of recursive calls).
 
 ```shell
-> ./target/release/assembly-theory data/checks/anthracene.mol --verbose
+> assembly-theory data/checks/anthracene.mol --verbose
 Assembly Index: 6
 Duplicate subgraph pairs: 406
 Search Space: 2306
@@ -127,32 +126,49 @@ Search Space: 2306
 By default, `assembly-theory` parallelizes its recursive search over as many threads as the OS allows.
 To disable parallelism, use the `--serial` flag.
 
-Also by default, `assembly-theory` uses its fastest algorithm for assembly index calculation (currently `assembly-theory`-allbounds, see the previous section).
+Also by default, `assembly-theory` uses its fastest algorithm for assembly index calculation (currently `bb-allbounds`, see the previous section).
 To use a specific bound or disable bounds altogether, set the `--bounds` or `--no-bounds` flags:
 
 ```shell
-# naive, no bounds
-./target/release/assembly-theory <molpath> --no-bounds
+# bb-naive, no bounds
+assembly-theory <molpath> --no-bounds
 
-# logbound, only logarithmic bound (Jirasek et al., 2024)
-./target/release/assembly-theory <molpath> --bounds log
+# bb-logbound, only logarithmic bound (Jirasek et al., 2024)
+assembly-theory <molpath> --bounds log
 
-# intbound, only integer addition chain bound (Seet et al., 2024)
-./target/release/assembly-theory <molpath> --bounds int-chain
+# bb-intbound, only integer addition chain bound (Seet et al., 2024)
+assembly-theory <molpath> --bounds int-chain
 
-# allbounds, both integer and vector addition chain bounds
-./target/release/assembly-theory <molpath> --bounds int-chain vec-chain
+# bb-allbounds, both integer and vector addition chain bounds
+assembly-theory <molpath> --bounds int-chain vec-chain
 ```
 
 Finally, the `--molecule-info` flag prints the molecule's graph representation as a vertex and edge list, the `--help` flag prints a guide to this command line interface, and the `--version` flag prints the current `assembly-theory` version.
 
 
-## Using the Rust Library
+## Rust Library
 
-**TODO**: Explain obtaining the library from crates.io and show a simple usage example.
+To include `assembly-theory` in a broader Rust project, run:
+
+```shell
+cargo add assembly-theory
+```
+
+Complete documentation of the library is available on [docs.rs](https://docs.rs/crate/assembly-theory/0.2.0); a simple usage example is:
+
+```rust
+use assembly_theory::*;
+
+// Read a .mol file as an assembly_theory::molecule::Molecule.
+let molfile = fs::read_to_string(path)?;
+let anthracene = loader::parse_molfile_str(&molfile).expect("Parsing failed");
+
+// Calculate the molecule's assembly index.
+assert_eq!(assembly::index(&anthracene), 6);
+```
 
 
-## Building and Running the Python Interface
+## Python Interface
 
 We use [`maturin`](https://github.com/PyO3/maturin) to repackage the `assembly-theory` Rust binaries as the `assembly_theory` package for Python.
 Instructions for this build process can be found in our `README`; otherwise, the Python package can be obtained from PyPI in the usual way:
@@ -187,7 +203,7 @@ The `timeout` parameter is specific to the Python interface: when set to a non-`
 Both use curated reference datasets representing different classes of molecules, arranged roughly in order of increasing molecular size and complexity:
 
 - `gdb13_1201`: 1,201 small, organic molecular structures sampled from GDB-13, a database of enumerated chemical structures containing Carbon, Hydrogen, Nitrogen, Oxygen, Sulfur, and Chlorine that are constrained only by valence rules and quantum mechanics but may not be chemically stable or synthesizable [@Blum2009-970million].
-Our sample includes all 201 molecules in GDB-13 with 4&ndash;5 heavy atoms and 200 randomly sampled molecules for each number of heavy atoms from 6&ndash;10.
+Our sample includes all 201 molecules with 4&ndash;5 heavy atoms and 200 randomly sampled molecules for each number of heavy atoms from 6&ndash;10.
 These molecules' MA range from 2&ndash;9.
 - `gdb17_800`: 800 organic molecular structures sampled from the larger GDB-17 database, which includes additional nuclei beyond GDB-13 such as the halogens Flourine and Iodine [@Ruddigkeit2012-enumeration166].
 Compared to GDB-13, these molecules are typically larger and represent more structural diversity.
@@ -210,11 +226,11 @@ Incorrect calculations are flagged for developer review.
 
 Our benchmark suite evaluates `assembly-theory` performance by running repeated assembly index calculations over individual molecules or entire reference datasets.
 We leverage the [`criterion`](https://bheisler.github.io/criterion.rs/criterion/) package for Rust to automatically collect detailed timing statistics, charts, and estimates of performance improvements and regressions.
-As an example, \autoref{tab:benchtimes} shows `assembly-theory` performance across our three reference datasets against that of `assembly_go` [@Jirasek2024-investigatingquantifying].
-Depending on the dataset and choice of `assembly-theory` algorithm, `assembly-theory` outperforms `assembly_go` by one to three orders of magnitude.
-The 8.9&ndash;**TODO**x speedup of `assembly-theory`-logbound over `assembly_go` most clearly represents the efficiency of Rust over Go, since both use the same branch-and-bound approach with a logarithmic bound.
-Further algorithmic improvements such as the integer addition chain bound [@Seet2024-rapidcomputation] and our novel vector addition chain bound yield more dramatic speedups for larger molecules, like those up to 965x for `coconut_220`.
-**TODO**: If `assembly-theory`-naive is slower than `assembly_go`, explain that here.
+As an example, \autoref{tab:benchtimes} shows `assembly-theory` performance across our four reference datasets against that of `assembly_go` [@Jirasek2024-investigatingquantifying].
+Depending on the dataset and choice of `assembly-theory` algorithm, `assembly-theory` outperforms `assembly_go` by one to four orders of magnitude.
+The 8.2&ndash;**TODO**x speedup of `bb-logbound` over `assembly_go` most clearly represents the efficiency of Rust over Go, since both use the same branch-and-bound approach with a logarithmic bound.
+Further algorithmic improvements such as the `bb-allbounds` combination of an integer addition chain bound [@Seet2024-rapidcomputation] and our novel vector addition chain bound yield more dramatic speedups for larger molecules, like those up to 2663x for `coconut_220`.
+**TODO**: If `bb-naive` is slower than `assembly_go`, explain that here.
 This internal comparison showcases `assembly-theory` as a framework capable of comparing multiple algorithmic approaches on equal footing, free of differences in underlying datasets or language-specific efficiency issues.
 
 : \label{tab:benchtimes} Mean benchmark execution times for `assembly_go` [@Jirasek2024-investigatingquantifying] vs. `assembly-theory` across reference datasets.
@@ -225,18 +241,18 @@ Means are reported over 20 samples per software&ndash;dataset pair, except those
 The `naive` approach was not computed on the `coconut_220` dataset as the search space was prohibitively large without any bounds, leading to an overflow error (note that `assembly_go` uses an approach similar to the `logbound`).
 This behavior is documented in the source repository. 
 
-|               | `assembly_go`  | `assembly-theory`-naive  | `assembly-theory`-logbound | `assembly-theory`-intbound | `assembly-theory`-allbounds     |
-| --------- | --------: | --------: | -----------: | -----------: | -----------: | 
-| `gdb13_1201`  |       1.048 s |       0.118 s |         0.117 s |         0.110 s |          **0.109 s** |
-| `gdb17_800`   |     128.396 s |       7.041 s |         5.644 s |         4.476 s |          **4.331 s** |
-| `checks`      |     296.584 s |      13.964 s |         2.787 s |         2.191 s |          **2.001 s** |
-| `coconut_220` | 6.09 h$^\ast$ |   --          |     TODO$^\ast$ |        30.123 s |         **22.911 s** |
+|               | `assembly_go`  | `bb-naive`    | `bb-logbound`   | `bb-intbound`   | `bb-allbounds`   |
+| ---------- | ----------: | --------: | -----------: | -----------: | -----------: | 
+| `gdb13_1201`  |        0.905 s |       0.113 s |         0.111 s |         **0.110 s** |          0.112 s |
+| `gdb17_800`   |      257.830 s |       6.760 s |         5.502 s |         4.442 s |          **4.336 s** |
+| `checks`      |      606.846 s |      13.702 s |         2.765 s |         2.136 s |          **1.967 s** |
+| `coconut_220` | 18.78 h$^\ast$ | TODO h$^\ast$ |   TODO h$^\ast$ |        33.237 s |         **25.383 s** |
 
 If finer-grained timing insights are needed, `assembly-theory` can also benchmark assembly index calculations for each individual molecule in a reference dataset.
-For example, \autoref{fig:timescatter} shows the calculation time of each molecule in `gdb17_800` for four different algorithm settings.
+For example, \autoref{fig:timescatter} shows the calculation time of each molecule in `gdb17_800` for the four branch-and-bound algorithms.
 This is useful for teasing out which molecules are "hard" and characterizing where algorithmic improvements make the largest impact.
 
-![*Per-Molecule Benchmark Times*. The mean assembly index calculation time across 20 samples for each molecule (dot) in `gdb17_800` as a function of the molecule's number of duplicate isomorphic subgraphs, a measure roughly correlated with the molecule's size and complexity. The same four `assembly-theory` algorithm settings from \autoref{tab:benchtimes} are shown here.\label{fig:timescatter}](figures/jossplot.pdf){ width=75% }
+![*Per-Molecule Benchmark Times*. The mean assembly index calculation time across 20 samples for each molecule (dot) in `gdb17_800` as a function of the molecule's number of duplicate isomorphic subgraphs, a measure roughly correlated with the molecule's size and complexity. The same four `assembly-theory` branch-and-bound algorithms from \autoref{tab:benchtimes} are shown here.\label{fig:timescatter}](figures/jossplot.pdf){ width=75% }
 
 
 
@@ -267,9 +283,8 @@ JJD and CM wrote the paper.
 
 # Acknowledgements
 
-JJD and GP are supported in part by NSF award CCF-2312537.
-DV is supported by the ASU Biodesign Institute.
-**TODO**: Other acks?
+GP and JJD are supported in part by NSF award CCF-2312537.
+DV, OMS, and CM acknowledge support from the ASU Biodesign Institute.
 
 
 
