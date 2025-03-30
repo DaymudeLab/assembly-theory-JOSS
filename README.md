@@ -71,8 +71,8 @@ Then run the benchmark with
 go test -bench=. -cpu=<cpus> -count=<iters> -timeout=0 > datasets_bench.tsv
 ```
 
-where `<cpus>` is replaced by the number of CPUs you want to let `assembly_go` parallelize over and `<iters>` is replaced by the number of iterations you want to run the benchmark and average the times over.
-For our paper, we used `-cpus=16` and `-count=20`.
+where `<cpus>` is replaced by the number of CPUs you want to let `assembly_go` parallelize over and `<iters>` is replaced by the number of iterations you want to run the benchmark and average the times over (see the [go testing flags](https://pkg.go.dev/cmd/go#hdr-Testing_flags) for details).
+For our paper, we used `-cpu=16` and `-count=20`.
 
 The benchmark for `assembly_go` on `coconut_220` is very slow, so we only ran that version of the benchmark once (i.e., `-count=1`).
 
