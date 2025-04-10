@@ -16,7 +16,7 @@ pub fn dataset_bench(c: &mut Criterion) {
     let mut group = c.benchmark_group("datasets");
 
     // Define datasets, bounds, and labels.
-    let datasets = ["gdb13_1201", "gdb17_800", "checks", "coconut_220"];
+    let datasets = ["gdb13_1201", "gdb17_200", "checks", "coconut_55"];
     let bounds = [vec![],
                   vec![Bound::Log],
                   vec![Bound::IntChain],
@@ -45,13 +45,6 @@ pub fn dataset_bench(c: &mut Criterion) {
         // For each of the bounds options, run the benchmark over all molecules
         // in this dataset.
         for (bound, bound_str) in zip(&bounds, &bound_strs) {
-            // Skip the dataset benchmarks that take too long to run.
-            if *dataset == "coconut_220"
-                && (*bound_str == "naive" || *bound_str == "logbound") {
-                continue;
-            }
-
-            // Run the benchmark.
             group.bench_with_input(
                 BenchmarkId::new(*dataset, &bound_str), bound, |b, bound| {
                     b.iter(|| {
@@ -71,7 +64,7 @@ pub fn jossplot_bench(c: &mut Criterion) {
     let mut group = c.benchmark_group("jossplot");
 
     // Define datasets, bounds, and labels.
-    let datasets = ["gdb17_800"];
+    let datasets = ["gdb17_200"];
     let bounds = [vec![],
                   vec![Bound::Log],
                   vec![Bound::IntChain],
@@ -113,13 +106,6 @@ pub fn jossplot_bench(c: &mut Criterion) {
             // Benchmark assembly index calculation for this molecule using the
             // different bound options.
             for (bound, bound_str) in zip(&bounds, &bound_strs) {
-                // Skip the dataset benchmarks that take too long to run.
-                if *dataset == "coconut_220"
-                    && (*bound_str == "naive" || *bound_str == "logbound") {
-                    continue;
-                }
-
-                // Run the benchmark.
                 group.bench_with_input(
                     BenchmarkId::new(&id, &bound_str), bound, |b, bound| {
                         b.iter(|| index_search(&mol, &bound));

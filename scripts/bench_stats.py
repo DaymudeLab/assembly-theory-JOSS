@@ -23,7 +23,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Define fixed constants.
-    datasets = ['gdb13_1201', 'gdb17_800', 'checks', 'coconut_220']
+    datasets = ['gdb13_1201', 'gdb17_200', 'checks', 'coconut_55']
     at_algs = ['naive', 'logbound', 'intbound', 'allbounds']
 
     # Create results dict of the form {algo: {dataset: (mean, 95% conf.)}}.
@@ -40,7 +40,7 @@ if __name__ == "__main__":
     # Compute assembly_go means and 95% confidence intervals.
     for dataset in datasets:
         # Skip very slow benchmarks that we don't do multiple samples for.
-        if dataset == 'coconut_220':
+        if dataset == 'coconut_55':
             continue
 
         times = np.array(ago_df.loc[ago_df['dataset'] == dataset].time)
@@ -52,10 +52,6 @@ if __name__ == "__main__":
 
     # Do the same for assembly-theory's three algorithm variants.
     for dataset, at_alg in product(datasets, at_algs):
-        # Skip very slow benchmarks that we don't do multiple samples for.
-        if dataset == 'coconut_220' and at_alg in ['naive', 'logbound']:
-            continue
-
         with open(osp.join(args.crit_path, dataset, at_alg, 'new',
                            'estimates.json'), 'r') as f:
             stats = json.load(f)

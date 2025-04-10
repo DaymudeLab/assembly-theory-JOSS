@@ -20,7 +20,7 @@ if __name__ == "__main__":
                         help='Path to jossplot criterion output directory')
     parser.add_argument('-F', '--figs_path', type=str, default='figures',
                         help='Path to figures directory')
-    parser.add_argument('-D', '--datasets', nargs='+', default=['gdb17_800'],
+    parser.add_argument('-D', '--datasets', nargs='+', default=['gdb17_200'],
                         help='Space-separated list of datasets to include')
     args = parser.parse_args()
 

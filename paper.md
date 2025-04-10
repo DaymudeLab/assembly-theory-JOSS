@@ -42,7 +42,7 @@ bibliography: paper.bib
 # Summary
 
 We present `assembly-theory`, a Rust package for computing *assembly indices* of covalently bonded molecular structures.
-This is a key complexity measure of *assembly theory*, a recent theoretical framework qunatifying selection across diverse systems, most importantly chemistry [@Walker2024-experimentallymeasured; @Sharma2023-assemblytheory].
+This is a key complexity measure of *assembly theory*, a recent theoretical framework quantifying selection across diverse systems, most importantly chemistry [@Walker2024-experimentallymeasured; @Sharma2023-assemblytheory].
 `assembly-theory` is designed for researchers and practitioners alike, providing (i) extensible, high-performance implementations of assembly index calculation algorithms, (ii) comprehensive benchmarks against which current and future algorithmic improvements can be tested, and (iii) Python bindings and `RDKit`-compatible data loaders to support integration with existing computational pipelines.
 
 
@@ -69,7 +69,7 @@ For example, the original software to compute a split-branch approximation of MA
 Machine learning methods only provide approximate MA values [@Gebhard2022-inferringmolecular].
 The more recent `assembly_go` implementation computes MA exactly but is written in Go, yielding worse performance and posing an accessibility barrier for most scientists who are unfamiliar with the language [@Jirasek2024-investigatingquantifying].
 Finally, the latest implementation achieves significant performance milestones through a branch-and-bound approach [@Seet2024-rapidcomputation].
-It is again written in C++ but is not available for public use, prohibiting its use and verification by the community.
+It is again written in C++ but is not publicly available, prohibiting its use and verification by the community.
 
 With `assembly-theory`, we provide a high-performance Rust package for MA calculation while also providing Python bindings for key functionality, offering the best efficiency without sacrificing accessibility.
 We chose Rust for its advantages of cross-platform support, memory-safety, performant runtime, convenient parallelism, and integrated testing and documentation [@Perkel2020-whyscientists].
@@ -86,8 +86,8 @@ Currently, `assembly-theory` implements several top-down, branch-and-bound ("`bb
 We briefly summarize these algorithms below, but emphasize that `assembly-theory` is not limited to this top-down, recursive approach.
 
 - `bb-naive` fully enumerates all non-duplicate assembly pathways in an efficient order.
-- `bb-logbound` improves over the naive method by eliminating any assembly pathways longer than $\log_2b$, where $b$ is the molecule's number of bonds [@Jirasek2024-investigatingquantifying].
-- `bb-intbound` improves over the logarithmic bound by eliminating any assembly pathways longer than a bound provided by an integer addition chain [@Seet2024-rapidcomputation].
+- `bb-logbound` improves over the naive method by eliminating any assembly pathways whose current length plus $\log_2b$, where $b$ is the number of remaining bonds, is greater than the length of the shortest assembly pathway found so far [@Jirasek2024-investigatingquantifying].
+- `bb-intbound` uses a stronger lower bound on the number of remaining assembly steps provided by an integer addition chain [@Seet2024-rapidcomputation].
 - `bb-allbounds` simultaneously applies the previous integer addition chain bound and a novel bound provided by a vector addition chain.
 
 
@@ -104,7 +104,7 @@ Rust provides the `cargo` build system and package manager for dependency manage
 To install the standalone executable, run:
 
 ```shell
-cargo install assembly-theory
+> cargo install assembly-theory
 ```
 
 This executable takes as input a path to a `.mol` file and returns that molecule's assembly index:
@@ -131,16 +131,16 @@ To use a specific bound or disable bounds altogether, set the `--bounds` or `--n
 
 ```shell
 # bb-naive, no bounds
-assembly-theory <molpath> --no-bounds
+> assembly-theory data/checks/anthracene.mol --no-bounds
 
 # bb-logbound, only logarithmic bound (Jirasek et al., 2024)
-assembly-theory <molpath> --bounds log
+> assembly-theory data/checks/anthracene.mol --bounds log
 
 # bb-intbound, only integer addition chain bound (Seet et al., 2024)
-assembly-theory <molpath> --bounds int-chain
+> assembly-theory data/checks/anthracene.mol --bounds int-chain
 
 # bb-allbounds, both integer and vector addition chain bounds
-assembly-theory <molpath> --bounds int-chain vec-chain
+> assembly-theory data/checks/anthracene.mol --bounds int-chain vec-chain
 ```
 
 Finally, the `--molecule-info` flag prints the molecule's graph representation as a vertex and edge list, the `--help` flag prints a guide to this command line interface, and the `--version` flag prints the current `assembly-theory` version.
@@ -151,7 +151,7 @@ Finally, the `--molecule-info` flag prints the molecule's graph representation a
 To include `assembly-theory` in a broader Rust project, run:
 
 ```shell
-cargo add assembly-theory
+> cargo add assembly-theory
 ```
 
 Complete documentation of the library is available on [docs.rs](https://docs.rs/crate/assembly-theory/0.2.0); a simple usage example is:
@@ -174,17 +174,18 @@ We use [`maturin`](https://github.com/PyO3/maturin) to repackage the `assembly-t
 Instructions for this build process can be found in our `README`; otherwise, the Python package can be obtained from PyPI in the usual way:
 
 ```shell
-pip install assembly_theory
+> pip install assembly_theory
 ```
 
 Our Python interface is built for compatibility with `RDKit`, the standard Python library for cheminformatics [@2024-rdkitopensource].
 Molecules can be loaded and manipulated using the `rdkit.Chem.Mol` class and then passed to our functions for assembly index calculation:
 
 ```python
-import assembly_theory as at
-from rdkit import Chem
-anthracene = Chem.MolFromSmiles("c1ccc2cc3ccccc3cc2c1")
-at.molecular_assembly(anthracene)  # 6
+>>> import assembly_theory as at
+>>> from rdkit import Chem
+>>> anthracene = Chem.MolFromSmiles("c1ccc2cc3ccccc3cc2c1")
+>>> at.molecular_assembly(anthracene)
+6
 ```
 
 In detail, `assembly_theory` exposes three main functions:
@@ -193,7 +194,7 @@ In detail, `assembly_theory` exposes three main functions:
 2. **`molecular_assembly_verbose`**`(mol: Chem.Mol, bounds: set[str] = None, no_bounds: bool = False, timeout: int = None, serial: bool = False) -> dict` 
 3. **`molecule_info`**`(mol: Chem.Mol) -> str`
 
-These correspond to running the Rust `assembly-theory` executable to obtain only an assembly index, running with the `--verbose` flag to also obtain the number of disjoint isomorphic subgraph pairs (`duplicates`) and search space size (`space`), and running with the `--molecule-info` flag to obtain molecule information, respectively.
+These correspond to (1) running the Rust `assembly-theory` executable to obtain only an assembly index, (2) running with the `--verbose` flag to also obtain the number of disjoint isomorphic subgraph pairs (`duplicates`) and search space size (`space`), and (3) running with the `--molecule-info` flag to obtain molecule information, respectively.
 The `timeout` parameter is specific to the Python interface: when set to a non-`None` integer value, a `TimeoutError` is raised if assembly index calculation exceeds `timeout` seconds.
 
 
@@ -205,52 +206,52 @@ Both use curated reference datasets representing different classes of molecules,
 - `gdb13_1201`: 1,201 small, organic molecular structures sampled from GDB-13, a database of enumerated chemical structures containing Carbon, Hydrogen, Nitrogen, Oxygen, Sulfur, and Chlorine that are constrained only by valence rules and quantum mechanics but may not be chemically stable or synthesizable [@Blum2009-970million].
 Our sample includes all 201 molecules with 4&ndash;5 heavy atoms and 200 randomly sampled molecules for each number of heavy atoms from 6&ndash;10.
 These molecules' MA range from 2&ndash;9.
-- `gdb17_800`: 800 organic molecular structures sampled from the larger GDB-17 database, which includes additional nuclei beyond GDB-13 such as the halogens Flourine and Iodine [@Ruddigkeit2012-enumeration166].
+- `gdb17_200`: 200 organic molecular structures sampled from the GDB-17 database, which includes additional nuclei beyond GDB-13 such as the halogens Flourine and Iodine [@Ruddigkeit2012-enumeration166].
 Compared to GDB-13, these molecules are typically larger and represent more structural diversity.
-Our sample includes 200 randomly sampled molecules for each number of heavy atoms from 14&ndash;17.
-These molecules' MA range from 5&ndash;15.
-- `checks`: 15 named molecules (e.g., anthracene, aspirin, caffeine, morphine) primarily used for rapid testing.
-These molecules' number of heavy atoms range from 5&ndash;28 and have MA from 3&ndash;18.
-- `coconut_220`: 220 natural products sampled from the COCONUT database [@Sorokina2021-coconutonline], accessed in late 2024, prior to COCONUT 2.0 [@Chandrasekhar2025-coconut20].
+Our sample includes 50 randomly sampled molecules for each number of heavy atoms from 14&ndash;17.
+These molecules' MA range from 7&ndash;16.
+- `checks`: 15 named molecules (e.g., anthracene, aspirin, caffeine, morphine) from KEGG COMPOUND [@Kanehisa2000-keggkyoto; @Kanehisa2019-understandingorigin; @Kanehisa2023-keggtaxonomybased] primarily used for rapid testing.
+These molecules' number of heavy atoms range from 5&ndash;21 and have MA from 3&ndash;14.
+- `coconut_55`: 55 natural products sampled from the COCONUT database [@Sorokina2021-coconutonline], accessed in late 2024, prior to COCONUT 2.0 [@Chandrasekhar2025-coconut20].
 Natural products (or secondary metabolites) are a rich source of evolved chemical complexity, often exhibiting drug-like properties.
-Subsets of this database were used to benchmark recent algorithmic progress in [@Seet2024-rapidcomputation]. 
-Our sample includes 20 randomly sampled molecules for each number of heavy atoms from 15&ndash;25.
-These molecules' MA range from 5&ndash;20.
+Subsets of this database were used to benchmark recent algorithmic progress in [@Seet2024-rapidcomputation].
+Our sample includes five randomly sampled molecules for each number of heavy atoms from 15&ndash;25.
+These molecules' MA range from 7&ndash;16.
 
 We curated these reference datasets for their structural diversity and approachable runtime on commodity hardware.
-Larger, more demanding datasets will be added as needed.
+Larger, more demanding datasets can be added as needed.
 
-The `assembly-theory` test suite contains unit tests validating internal functionality and database tests checking the calculation of correct assembly indices for all molecules in any of our reference datasets.
+The `assembly-theory` test suite contains unit tests validating internal functionality and integration tests checking the calculation of correct assembly indices for all molecules in any of our reference datasets.
 Each reference dataset contains an `ma-index.csv` file with ground truth assembly indices calculated using the publicly available `assembly_go` implementation [@Jirasek2024-investigatingquantifying].
 Incorrect calculations are flagged for developer review.
 
 Our benchmark suite evaluates `assembly-theory` performance by running repeated assembly index calculations over individual molecules or entire reference datasets.
 We leverage the [`criterion`](https://bheisler.github.io/criterion.rs/criterion/) package for Rust to automatically collect detailed timing statistics, charts, and estimates of performance improvements and regressions.
 As an example, \autoref{tab:benchtimes} shows `assembly-theory` performance across our four reference datasets against that of `assembly_go` [@Jirasek2024-investigatingquantifying].
-Depending on the dataset and choice of `assembly-theory` algorithm, `assembly-theory` outperforms `assembly_go` by one to four orders of magnitude.
-The 8.2&ndash;219.4x speedup of `bb-logbound` over `assembly_go` most clearly represents the efficiency of Rust over Go, since both use the same branch-and-bound approach with a logarithmic bound.
-This language efficiency alone is insufficient for good performance, however: our benchmark of `bb-naive` times out after 24 hours when enumerating all substructures of larger molecules in `coconut_220`, while `assembly_go` completes this benchmark in just under 19 hours.
-Algorithmic improvements such as the `bb-allbounds` combination of an integer addition chain bound [@Seet2024-rapidcomputation] and our novel vector addition chain bound yield more dramatic speedups for larger molecules, like those up to 2663x for `coconut_220`.
+Depending on the dataset and choice of `assembly-theory` algorithm, `assembly-theory` outperforms `assembly_go` by **TODO** to **TODO** orders of magnitude.
+The **TOOD**&ndash;**TODO**x speedup of `bb-logbound` over `assembly_go` most clearly represents the efficiency of Rust over Go, since both use the same branch-and-bound approach with a logarithmic bound.
+**TODO:** This language efficiency alone is insufficient for good performance, however: our benchmark of `bb-naive` times out after 24 hours when enumerating all substructures of larger molecules in `coconut_55`, while `assembly_go` completes this benchmark in just under 19 hours.
+Algorithmic improvements such as the `bb-allbounds` combination of an integer addition chain bound [@Seet2024-rapidcomputation] and our novel vector addition chain bound yield more dramatic speedups for larger molecules, like those up to **TODO**x for `coconut_55`.
 This internal comparison showcases `assembly-theory` as a framework capable of comparing multiple algorithmic approaches on equal footing, free of differences in underlying datasets or language-specific efficiency issues.
 
 : \label{tab:benchtimes} Mean benchmark execution times for `assembly_go` [@Jirasek2024-investigatingquantifying] vs. `assembly-theory` across reference datasets.
 The benchmark times the MA calculation of all molecules in a given dataset in sequence, excluding the time required to parse and load `.mol` files into internal molecular graph representations.
 `assembly_go` uses its default parameters while `assembly-theory` tests each of its algorithm variants independently.
 Each benchmark was run on a Linux machine with a 5.7 GHz Ryzen 9 7950X CPU (16 cores) and 64 GB of memory.
-Means are reported over 20 samples per software&ndash;dataset pair, except those marked with an $\ast$ which were prohibitively expensive to run multiple times.
+Means are reported over 20 samples per software&ndash;dataset pair, except those marked with an $\ast$ which have prohibitively long runtimes and thus ran only once.
 
-|               | `assembly_go`  | `bb-naive`   | `bb-logbound` | `bb-intbound`   | `bb-allbounds`   |
+|              | `assembly_go`  | `bb-naive`   | `bb-logbound` | `bb-intbound`   | `bb-allbounds`   |
 | ---------- | ----------: | --------: | -----------: | -----------: | -----------: | 
-| `gdb13_1201`  |        0.905 s |      0.113 s |       0.111 s |         **0.110 s** |          0.112 s |
-| `gdb17_800`   |      257.830 s |      6.760 s |       5.502 s |         4.442 s |          **4.336 s** |
-| `checks`      |      606.846 s |     13.702 s |       2.765 s |         2.136 s |          **1.967 s** |
-| `coconut_220` | 18.78 h$^\ast$ | >24 h$^\ast$ | 1.14 h$^\ast$ |        33.237 s |         **25.383 s** |
+| `gdb13_1201` |        x.xxx s |      x.xxx s |       x.xxx s |         x.xxx s |          **x.xxx** s |
+| `gdb17_200`  |        x.xxx s |      x.xxx s |       x.xxx s |         x.xxx s |          **x.xxx s** |
+| `checks`     |        x.xxx s |      x.xxx s |       x.xxx s |         x.xxx s |          **x.xxx s** |
+| `coconut_55` | 18.78 h$^\ast$ | >24 h$^\ast$ | 1.14 h$^\ast$ |         x.xxx s |          **x.xxx s** |
 
 If finer-grained timing insights are needed, `assembly-theory` can also benchmark assembly index calculations for each individual molecule in a reference dataset.
-For example, \autoref{fig:timescatter} shows the calculation time of each molecule in `gdb17_800` for the four branch-and-bound algorithms.
+For example, \autoref{fig:timescatter} shows the calculation time of each molecule in `gdb17_200` for the four branch-and-bound algorithms.
 This is useful for teasing out which molecules are "hard" and characterizing where algorithmic improvements make the largest impact.
 
-![*Per-Molecule Benchmark Times*. The mean assembly index calculation time across 20 samples for each molecule (dot) in `gdb17_800` as a function of the molecule's number of duplicate isomorphic subgraphs, a measure roughly correlated with the molecule's size and complexity. The same four `assembly-theory` branch-and-bound algorithms from \autoref{tab:benchtimes} are shown here.\label{fig:timescatter}](figures/jossplot.pdf){ width=75% }
+![*Per-Molecule Benchmark Times*. **TODO** The mean assembly index calculation time across 20 samples for each molecule (dot) in `gdb17_200` as a function of the molecule's number of duplicate isomorphic subgraphs, a measure roughly correlated with the molecule's size and complexity. The same four `assembly-theory` branch-and-bound algorithms from \autoref{tab:benchtimes} are shown here.\label{fig:timescatter}](figures/jossplot.pdf){ width=75% }
 
 
 

@@ -23,7 +23,7 @@ func BenchmarkDatasets(b *testing.B) {
         path string
     }{
         {"gdb13_1201", "../../../assembly-theory/data/gdb13_1201"},
-        {"gdb17_800", "../../../assembly-theory/data/gdb17_800"},
+        {"gdb17_200", "../../../assembly-theory/data/gdb17_200"},
         {"checks", "../../../assembly-theory/data/checks"},
     }
 
