@@ -82,6 +82,9 @@ By including test and benchmark suites, we also lay a foundation for fair, repro
 `assembly-theory` is not a single algorithmic implementation of assembly index calculations; rather, it is a framework and source of ground truth within which a diversity of algorithmic approaches can be validated and compared.
 We purposely designed `assembly-theory` with a modular algorithm interface and data structures that can be easily extended to handle new algorithmic developments introduced as AT matures.
 
+**TODO**: Devansh, add a short (at most 5 sentence) explanation of the top-down approach with its subgraph enumeration and pathway search phases.
+Have your description dovetail into the following introduction of the various bounds.
+
 Currently, `assembly-theory` implements several top-down, branch-and-bound ("`bb`") algorithm variants in which a molecule is recursively fragmented and the MA of smaller fragments are used to determine the MA of their parents [@Marshall2021-identifyingmolecules; @Jirasek2024-investigatingquantifying; @Seet2024-rapidcomputation].
 We briefly summarize these algorithms below, but emphasize that `assembly-theory` is not limited to this top-down, recursive approach.
 
@@ -221,17 +224,15 @@ These molecules' MA range from 7&ndash;16.
 We curated these reference datasets for their structural diversity and approachable runtime on commodity hardware.
 Larger, more demanding datasets can be added as needed.
 
-The `assembly-theory` test suite contains unit tests validating internal functionality and integration tests checking the calculation of correct assembly indices for all molecules in any of our reference datasets.
-Each reference dataset contains an `ma-index.csv` file with ground truth assembly indices calculated using the publicly available `assembly_go` implementation [@Jirasek2024-investigatingquantifying].
-Incorrect calculations are flagged for developer review.
+The `assembly-theory` test suite contains unit tests validating internal functionality and integration tests verifying the calculation of correct assembly indices for all molecules in our reference datasets.
+Each reference dataset contains an `ma-index.csv` file with ground truth assembly indices calculated using the closed-source [@Seet2024-rapidcomputation] algorithm, privately provided to us by the authors for this use only.
 
 Our benchmark suite evaluates `assembly-theory` performance by running repeated assembly index calculations over individual molecules or entire reference datasets.
 We leverage the [`criterion`](https://bheisler.github.io/criterion.rs/criterion/) package for Rust to automatically collect detailed timing statistics, charts, and estimates of performance improvements and regressions.
 As an example, \autoref{tab:benchtimes} shows `assembly-theory` performance across our four reference datasets against that of `assembly_go` [@Jirasek2024-investigatingquantifying].
-Depending on the dataset and choice of `assembly-theory` algorithm, `assembly-theory` outperforms `assembly_go` by **TODO** to **TODO** orders of magnitude.
-The **TOOD**&ndash;**TODO**x speedup of `bb-logbound` over `assembly_go` most clearly represents the efficiency of Rust over Go, since both use the same branch-and-bound approach with a logarithmic bound.
-**TODO:** This language efficiency alone is insufficient for good performance, however: our benchmark of `bb-naive` times out after 24 hours when enumerating all substructures of larger molecules in `coconut_55`, while `assembly_go` completes this benchmark in just under 19 hours.
-Algorithmic improvements such as the `bb-allbounds` combination of an integer addition chain bound [@Seet2024-rapidcomputation] and our novel vector addition chain bound yield more dramatic speedups for larger molecules, like those up to **TODO**x for `coconut_55`.
+Depending on the dataset and choice of `assembly-theory` algorithm, `assembly-theory` outperforms `assembly_go` by one or two orders of magnitude.
+The 6.5&ndash;120.0x speedup of `bb-logbound` over `assembly_go` most clearly represents the efficiency of Rust over Go, since both use the same branch-and-bound approach with a logarithmic bound.
+Algorithmic improvements such as the `bb-allbounds` combination of an integer addition chain bound [@Seet2024-rapidcomputation] and our novel vector addition chain bound yield more dramatic speedups for larger molecules, like those up to 410.0x for `coconut_55`.
 This internal comparison showcases `assembly-theory` as a framework capable of comparing multiple algorithmic approaches on equal footing, free of differences in underlying datasets or language-specific efficiency issues.
 
 : \label{tab:benchtimes} Mean benchmark execution times for `assembly_go` [@Jirasek2024-investigatingquantifying] vs. `assembly-theory` across reference datasets.
@@ -240,12 +241,12 @@ The benchmark times the MA calculation of all molecules in a given dataset in se
 Each benchmark was run on a Linux machine with a 5.7 GHz Ryzen 9 7950X CPU (16 cores) and 64 GB of memory.
 Means are reported over 20 samples per software&ndash;dataset pair, except those marked with an $\ast$ which have prohibitively long runtimes and thus ran only once.
 
-|              | `assembly_go`  | `bb-naive`   | `bb-logbound` | `bb-intbound`   | `bb-allbounds`   |
+|              | `assembly_go` | `bb-naive`   | `bb-logbound` | `bb-intbound`   | `bb-allbounds`   |
 | ---------- | ----------: | --------: | -----------: | -----------: | -----------: | 
-| `gdb13_1201` |        x.xxx s |      x.xxx s |       x.xxx s |         x.xxx s |          **x.xxx** s |
-| `gdb17_200`  |        x.xxx s |      x.xxx s |       x.xxx s |         x.xxx s |          **x.xxx s** |
-| `checks`     |        x.xxx s |      x.xxx s |       x.xxx s |         x.xxx s |          **x.xxx s** |
-| `coconut_55` | 18.78 h$^\ast$ | >24 h$^\ast$ | 1.14 h$^\ast$ |         x.xxx s |          **x.xxx s** |
+| `gdb13_1201` |       0.968 s |      0.147 s |       0.149 s |         **0.140 s** |          0.142 s |
+| `gdb17_200`  |      46.189 s |      4.586 s |       3.446 s |         2.988 s |          **2.946 s** |
+| `checks`     |     212.000 s |     12.635 s |       1.767 s |         1.357 s |          **1.297 s** |
+| `coconut_55` | 1.48 h$^\ast$ |    175.687 s |      57.123 s |        13.188 s |         **12.996 s** |
 
 If finer-grained timing insights are needed, `assembly-theory` can also benchmark assembly index calculations for each individual molecule in a reference dataset.
 For example, \autoref{fig:timescatter} shows the calculation time of each molecule in `gdb17_200` for the four branch-and-bound algorithms.
