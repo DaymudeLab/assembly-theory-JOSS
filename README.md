@@ -51,10 +51,6 @@ Then run the benchmark with
 cargo bench datasets
 ```
 
-> [!NOTE]
-> This benchmark skips the "naive" and "logbound" bound options for `assembly-theory` on the `coconut_220` dataset as these runs are prohibitively slow.
-> To obtain these algorithms' benchmark times, we manually modified the benchmark to run just once, killing the process at the 24 hour mark.
-
 
 ### Benchmarking `assembly_go`
 
@@ -74,7 +70,8 @@ go test -bench=. -cpu=<cpus> -count=<iters> -timeout=0 > datasets_bench.tsv
 where `<cpus>` is replaced by the number of CPUs you want to let `assembly_go` parallelize over and `<iters>` is replaced by the number of iterations you want to run the benchmark and average the times over (see the [go testing flags](https://pkg.go.dev/cmd/go#hdr-Testing_flags) for details).
 For our paper, we used `-cpu=16` and `-count=20`.
 
-The benchmark for `assembly_go` on `coconut_220` is very slow, so we only ran that version of the benchmark once (i.e., `-count=1`).
+> [!Note]
+> The benchmark for `assembly_go` on `coconut_55` is very slow, so we only ran that version of the benchmark once (i.e., `-count=1`).
 
 
 ### Getting Benchmark Results
