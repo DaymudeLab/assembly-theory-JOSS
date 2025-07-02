@@ -252,7 +252,7 @@ If finer-grained timing insights are needed, `assembly-theory` can also benchmar
 For example, \autoref{fig:timescatter} shows the calculation time of each molecule in `gdb17_200` for the four branch-and-bound algorithms.
 This is useful for teasing out which molecules are "hard" and characterizing where algorithmic improvements make the largest impact.
 
-![*Per-Molecule Benchmark Times*. **TODO** The mean assembly index calculation time across 20 samples for each molecule (dot) in `gdb17_200` as a function of the molecule's number of duplicate isomorphic subgraphs, a measure roughly correlated with the molecule's size and complexity. The same four `assembly-theory` branch-and-bound algorithms from \autoref{tab:benchtimes} are shown here.\label{fig:timescatter}](figures/jossplot.pdf){ width=75% }
+![*Per-Molecule Benchmark Times*. The mean assembly index calculation time across 20 samples for each molecule (dot) in `gdb17_200` as a function of the molecule's number of duplicate isomorphic subgraphs, a measure roughly correlated with the molecule's size and complexity. The same four `assembly-theory` branch-and-bound algorithms from \autoref{tab:benchtimes} are shown here.\label{fig:timescatter}](figures/jossplot.pdf){ width=75% }
 
 
 
