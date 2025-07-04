@@ -82,14 +82,16 @@ By including test and benchmark suites, we also lay a foundation for fair, repro
 `assembly-theory` is not a single algorithmic implementation of assembly index calculations; rather, it is a framework and source of ground truth within which a diversity of algorithmic approaches can be validated and compared.
 We purposely designed `assembly-theory` with a modular algorithm interface and data structures that can be easily extended to handle new algorithmic developments introduced as AT matures.
 
-**TODO**: Devansh, add a short (at most 5 sentence) explanation of the top-down approach with its subgraph enumeration and pathway search phases.
-Have your description dovetail into the following introduction of the various bounds.
-
-Currently, `assembly-theory` implements several top-down, branch-and-bound ("`bb`") algorithm variants in which a molecule is recursively fragmented and the MA of smaller fragments are used to determine the MA of their parents [@Marshall2021-identifyingmolecules; @Jirasek2024-investigatingquantifying; @Seet2024-rapidcomputation].
-We briefly summarize these algorithms below, but emphasize that `assembly-theory` is not limited to this top-down, recursive approach.
+Following prior work [@Marshall2021-identifyingmolecules; @Jirasek2024-investigatingquantifying; @Seet2024-rapidcomputation], `assembly-theory` currently implements a top-down approach with two phases that execute in sequence: (1) a search space enumeration and (2) a parallel branch-and-bound search.
+The enumeration phase finds all pairs of isomorphic, edge-disjoint subgraphs of the given molecule.
+Isomorphic subgraphs are binned into equivalence classes by their `nauty` canonical representations [@McKay2014-practicalgraph] and pairs of subgraphs within the same class are yielded if they are edge-disjoint.
+In the search phase, the given molecule is recursively fragmented by removing duplicate subgraphs enumerated in the first phase.
+The MA of smaller fragments are used to determine the MA of their parents.
+Optionally, a bounding strategy can be used to improve search efficiency.
+We briefly summarize the implemented branch-and-bound ("`bb`") variants below, but emphasize that `assembly-theory` is not limited to this top-down, recursive approach.
 
 - `bb-naive` fully enumerates all non-duplicate assembly pathways in an efficient order.
-- `bb-logbound` improves over the naive method by eliminating any assembly pathways whose current length plus $\log_2b$, where $b$ is the number of remaining bonds, is greater than the length of the shortest assembly pathway found so far [@Jirasek2024-investigatingquantifying].
+- `bb-logbound` improves over the naive method by eliminating any assembly pathways whose current length plus $\log_2b$ exceeds the length of the shortest assembly pathway found so far, where $b$ is the number of remaining bonds [@Jirasek2024-investigatingquantifying].
 - `bb-intbound` uses a stronger lower bound on the number of remaining assembly steps provided by an integer addition chain [@Seet2024-rapidcomputation].
 - `bb-allbounds` simultaneously applies the previous integer addition chain bound and a novel bound provided by a vector addition chain.
 
