@@ -82,10 +82,14 @@ By including test and benchmark suites, we also lay a foundation for fair, repro
 `assembly-theory` is not a single algorithmic implementation of assembly index calculations; rather, it is a framework and source of ground truth within which a diversity of algorithmic approaches can be validated and compared.
 We purposely designed `assembly-theory` with a modular algorithm interface and data structures that can be easily extended to handle new algorithmic developments introduced as AT matures.
 
-**TODO**: Devansh, add a short (at most 5 sentence) explanation of the top-down approach with its subgraph enumeration and pathway search phases.
-Have your description dovetail into the following introduction of the various bounds.
+`assembly-theory`'s current top-down approach has two phases that execute in sequence: (1) an enumeration of a search space and (2) a parallel branch-and-bound search.
+The search space generated in phase (1) is all pairs of isomorphic, edge-disjoint subgraphs of the given molecule.
+Isomorphic subgraphs are binned into equivalence classes by their canonical representation, which is computed using the popular Nauty package [@Mckay2014-practical].
+Pairs of subgraphs within the same set are yielded if they are edge-disjoint.
+In phase (2), the given molecule is recursively fragmented by removing duplicate isomorphic subgraphs computed in phase (1).
+The MA of smaller fragments are used to determine the MA of their parents [@Marshall2021-identifyingmolecules; @Jirasek2024-investigatingquantifying; @Seet2024-rapidcomputation].
 
-Currently, `assembly-theory` implements several top-down, branch-and-bound ("`bb`") algorithm variants in which a molecule is recursively fragmented and the MA of smaller fragments are used to determine the MA of their parents [@Marshall2021-identifyingmolecules; @Jirasek2024-investigatingquantifying; @Seet2024-rapidcomputation].
+Currently, `assembly-theory` implements several variants of the top-down, branch-and-bound ("`bb`") algorithm of phase (2).
 We briefly summarize these algorithms below, but emphasize that `assembly-theory` is not limited to this top-down, recursive approach.
 
 - `bb-naive` fully enumerates all non-duplicate assembly pathways in an efficient order.
