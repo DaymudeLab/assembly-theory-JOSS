@@ -71,9 +71,9 @@ The more recent `assembly_go` implementation computes MA exactly but is written 
 Finally, the latest implementation achieves significant performance milestones through a branch-and-bound approach [@Seet2024-rapidcomputation].
 It is again written in C++ but is not publicly available, prohibiting its use and verification by the community.
 
-With `assembly-theory`, we provide a high-performance Rust package for MA calculation while also providing Python bindings for key functionality, offering the best efficiency without sacrificing accessibility.
+With `assembly-theory`, we provide a high-performance Rust package for MA calculation while also providing Python bindings for key functionality, offering the best efficiency without sacrificing ease of use for scientific practitioners.
 We chose Rust for its advantages of cross-platform support, memory-safety, performant runtime, convenient parallelism, and integrated testing and documentation [@Perkel2020-whyscientists].
-By including test and benchmark suites, we also lay a foundation for fair, reproducible comparisons of future algorithmic improvements and new techniques.
+By including test and benchmark suites, we also lay a foundation for fair, reproducible comparisons of future algorithmic improvements.
 
 
 
