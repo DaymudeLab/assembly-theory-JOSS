@@ -90,7 +90,7 @@ The MA of smaller fragments are used to determine the MA of their parents.
 Optionally, a bounding strategy can be used to improve search efficiency.
 We briefly summarize the implemented branch-and-bound ("`bb`") variants below, but emphasize that `assembly-theory` is not limited to this top-down, recursive approach.
 
-- `bb-naive` fully enumerates all non-duplicate assembly pathways in an efficient order.
+- `bb-naive` fully enumerates all non-duplicate assembly pathways to find the shortest one.
 - `bb-logbound` improves over the naive method by eliminating any assembly pathways whose current length plus $\log_2b$ exceeds the length of the shortest assembly pathway found so far, where $b$ is the number of remaining bonds [@Jirasek2024-investigatingquantifying].
 - `bb-intbound` uses a stronger lower bound on the number of remaining assembly steps provided by an integer addition chain [@Seet2024-rapidcomputation].
 - `bb-allbounds` simultaneously applies the previous integer addition chain bound and a novel bound provided by a vector addition chain.
