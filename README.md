@@ -9,6 +9,8 @@ This is a collaboration in the Biodesign Center for Biocomputing, Security and S
 The primary function of this repository is to house the source files for our JOSS manuscript: `paper.md`, `paper.bib`, and `figures/`.
 Instructions for compiling a preview of the paper can be found in the [JOSS docs](https://joss.readthedocs.io/en/latest/paper.html#locally).
 
+If you are on the `arXiv` branch, you can build a TeX version of the paper by calling `make` in the top-level directory, assuming you have a current version of TeXLive (including `latexmk`) installed.
+
 If you additionally wish to reproduce our benchmarks and associated figures (instructions below), you will need Rust, Go, Python, and Git LFS.
 After cloning this repository, run the following to also pull the submodules:
 
