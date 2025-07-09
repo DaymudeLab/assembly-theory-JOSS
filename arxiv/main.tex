@@ -173,7 +173,7 @@
 
 % Do not indent paragraphs in this document.
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{0.25\baselineskip}
+\setlength{\parskip}{0.2\baselineskip}
 
 
 
@@ -333,7 +333,7 @@ Instructions for this build process can be found in our \texttt{README}; otherwi
 Our Python interface is built for compatibility with \texttt{RDKit}, the standard Python library for cheminformatics~\cite{2024-rdkitopensource}.
 Molecules can be loaded and manipulated using the \texttt{rdkit.Chem.Mol} class and then passed to our functions for assembly index calculation:
 
-\begin{minted}{python-console}
+\begin{minted}{python}
     >>> import assembly_theory as at
     >>> from rdkit import Chem
     >>> anthracene = Chem.MolFromSmiles("c1ccc2cc3ccccc3cc2c1")
